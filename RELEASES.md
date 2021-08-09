@@ -3,6 +3,7 @@ Version 0.8.8 (2021-08-XX)
 
 Version 0.8.7 (2021-07-31)
 ========================
+ * 
  * comma three support!
  * Navigation alpha for the comma three!
  * Volkswagen T-Cross 2021 support thanks to jyoung8607!
