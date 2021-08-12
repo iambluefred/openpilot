@@ -1,21 +1,21 @@
 [submodule "panda"]
 	path = panda
 	url = ../../iambluefred/panda.git
-	branch = v0.8.8_20210810_1044_develop
+	branch = v0.8.8_20210810_1044_stable
 [submodule "opendbc"]
 	path = opendbc
 	url = ../../iambluefred/opendbc.git
-	branch = v0.8.8_20210810_1044_develop
+	branch = v0.8.8_20210810_1044_stable
 [submodule "laika_repo"]
 	path = laika_repo
 	url = ../../iambluefred/laika.git
-	branch = v0.8.8_20210810_1044_develop
+	branch = v0.8.8_20210810_1044_stable
 [submodule "cereal"]
 	path = cereal
 	url = ../../iambluefred/cereal.git
-	branch = v0.8.8_20210810_1044_develop
+	branch = v0.8.8_20210810_1044_stable
 [submodule "rednose_repo"]
 	path = rednose_repo
 	url = ../../iambluefred/rednose.git
-	branch = v0.8.8_20210810_1044_develop
+	branch = v0.8.8_20210810_1044_stable
 
