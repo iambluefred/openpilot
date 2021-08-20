@@ -405,7 +405,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.steerTempUnavailableSilent: {
     ET.WARNING: Alert(
-      "Steering Temporarily Unavailable",
+      "408 Steering Temporarily Unavailable",
       "",
       AlertStatus.userPrompt, AlertSize.small,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 1., 1.),
@@ -587,7 +587,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.steerTempUnavailable: {
     ET.SOFT_DISABLE: SoftDisableAlert("Steering Temporarily Unavailable"),
-    ET.NO_ENTRY: NoEntryAlert("Steering Temporarily Unavailable",
+    ET.NO_ENTRY: NoEntryAlert("590 Steering Temporarily Unavailable",
                               duration_hud_alert=0.),
   },
 
@@ -615,7 +615,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   },
 
   EventName.noGps: {
-    ET.PERMANENT: no_gps_alert,
+#    ET.PERMANENT: no_gps_alert,
   },
 
   EventName.soundsUnavailable: {
@@ -685,7 +685,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   # ten times the regular interval, or the average interval is more than 10% too high.
   EventName.commIssue: {
     ET.SOFT_DISABLE: SoftDisableAlert("Communication Issue between Processes"),
-    ET.NO_ENTRY: NoEntryAlert("Communication Issue between Processes",
+    ET.NO_ENTRY: NoEntryAlert("688 Communication Issue between Processes",
                               audible_alert=AudibleAlert.chimeDisengage),
   },
 
@@ -772,7 +772,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   EventName.canError: {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("CAN Error: Check Connections"),
     ET.PERMANENT: Alert(
-      "CAN Error: Check Connections",
+      "775 CAN Error: Check Connections",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, 0., 0., .2, creation_delay=1.),
@@ -782,7 +782,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   EventName.steerUnavailable: {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("LKAS Fault: Restart the Car"),
     ET.PERMANENT: Alert(
-      "LKAS Fault: Restart the car to engage",
+      "785 LKAS Fault: Restart the car to engage",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
