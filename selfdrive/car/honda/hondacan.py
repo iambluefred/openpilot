@@ -113,7 +113,8 @@ def create_acc_commands(packer, enabled, accel, gas, idx, stopping, starting, ca
 
 def create_steering_control(packer, apply_steer, lkas_active, car_fingerprint, idx, radar_disabled):
   values = {
-    "STEER_TORQUE": apply_steer if lkas_active else 0,
+#    "STEER_TORQUE": apply_steer if lkas_active else 0,
+    "STEER_TORQUE": apply_steer,
     "STEER_TORQUE_REQUEST": lkas_active,
   }
   bus = get_lkas_cmd_bus(car_fingerprint, radar_disabled)
