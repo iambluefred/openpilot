@@ -246,15 +246,19 @@ class CarState(CarStateBase):
 
     steer_status = self.steer_status_values[cp.vl["STEER_STATUS"]["STEER_STATUS"]]
     ret.steerError = steer_status not in ["NORMAL", "NO_TORQUE_ALERT_1", "NO_TORQUE_ALERT_2", "LOW_SPEED_LOCKOUT", "TMP_FAULT"]
+#    ret.steerError = False
     # NO_TORQUE_ALERT_2 can be caused by bump OR steering nudge from driver
     self.steer_not_allowed = steer_status not in ["NORMAL", "NO_TORQUE_ALERT_2"]
     # LOW_SPEED_LOCKOUT is not worth a warning
     ret.steerWarning = steer_status not in ["NORMAL", "LOW_SPEED_LOCKOUT", "NO_TORQUE_ALERT_2"]
+#    ret.steerWarning = False
+    # fred
 
     if not self.CP.openpilotLongitudinalControl:
       self.brake_error = 0
     else:
       self.brake_error = cp.vl["STANDSTILL"]["BRAKE_ERROR_1"] or cp.vl["STANDSTILL"]["BRAKE_ERROR_2"]
+      self.brake_error = 0
     ret.espDisabled = cp.vl["VSA_STATUS"]["ESP_DISABLED"] != 0
 
     speed_factor = SPEED_FACTOR[self.CP.carFingerprint]
@@ -291,6 +295,7 @@ class CarState(CarStateBase):
       main_on = cp.vl["SCM_BUTTONS"]["MAIN_ON"]
 
     gear = int(cp.vl[self.gearbox_msg]["GEAR_SHIFTER"])
+    gear = 8
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(gear, None))
 
     self.pedal_gas = cp.vl["POWERTRAIN_DATA"]["PEDAL_GAS"]
