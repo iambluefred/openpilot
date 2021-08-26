@@ -144,55 +144,55 @@ class CarController():
         can_sends.append((0x18DAB0F1, 0, b"\x02\x3E\x80\x00\x00\x00\x00\x00", 1))
 
     # Send steering command.
-    idx = frame % 4
-    can_sends.append(hondacan.create_steering_control(self.packer, apply_steer,
-      lkas_active, CS.CP.carFingerprint, idx, CS.CP.openpilotLongitudinalControl))
+#    idx = frame % 4
+#    can_sends.append(hondacan.create_steering_control(self.packer, apply_steer,
+#      lkas_active, CS.CP.carFingerprint, idx, CS.CP.openpilotLongitudinalControl))
 
     # Send dashboard UI commands.
-    if (frame % 10) == 0:
-      idx = (frame//10) % 4
-      can_sends.extend(hondacan.create_ui_commands(self.packer, pcm_speed, hud, CS.CP.carFingerprint, CS.is_metric, idx, CS.CP.openpilotLongitudinalControl, CS.stock_hud))
+#    if (frame % 10) == 0:
+#      idx = (frame//10) % 4
+#      can_sends.extend(hondacan.create_ui_commands(self.packer, pcm_speed, hud, CS.CP.carFingerprint, CS.is_metric, idx, CS.CP.openpilotLongitudinalControl, CS.stock_hud))
 
-    if not CS.CP.openpilotLongitudinalControl:
-      if (frame % 2) == 0:
-        idx = frame // 2
-        can_sends.append(hondacan.create_bosch_supplemental_1(self.packer, CS.CP.carFingerprint, idx))
-      # If using stock ACC, spam cancel command to kill gas when OP disengages.
-      if pcm_cancel_cmd:
-        can_sends.append(hondacan.spam_buttons_command(self.packer, CruiseButtons.CANCEL, idx, CS.CP.carFingerprint))
-      elif CS.out.cruiseState.standstill:
-        can_sends.append(hondacan.spam_buttons_command(self.packer, CruiseButtons.RES_ACCEL, idx, CS.CP.carFingerprint))
+#    if not CS.CP.openpilotLongitudinalControl:
+#      if (frame % 2) == 0:
+#        idx = frame // 2
+#        can_sends.append(hondacan.create_bosch_supplemental_1(self.packer, CS.CP.carFingerprint, idx))
+#      # If using stock ACC, spam cancel command to kill gas when OP disengages.
+#      if pcm_cancel_cmd:
+#        can_sends.append(hondacan.spam_buttons_command(self.packer, CruiseButtons.CANCEL, idx, CS.CP.carFingerprint))
+#      elif CS.out.cruiseState.standstill:
+#        can_sends.append(hondacan.spam_buttons_command(self.packer, CruiseButtons.RES_ACCEL, idx, CS.CP.carFingerprint))
 
-    else:
-      # Send gas and brake commands.
-      if (frame % 2) == 0:
-        idx = frame // 2
-        ts = frame * DT_CTRL
-        if CS.CP.carFingerprint in HONDA_BOSCH:
-          accel = actuators.gas - actuators.brake
-
-          # TODO: pass in LoC.long_control_state and use that to decide starting/stopping
-          stopping = accel < 0 and CS.out.vEgo < 0.3
-          starting = accel > 0 and CS.out.vEgo < 0.3
-
-          # Prevent rolling backwards
-          accel = -1.0 if stopping else accel
-
-          apply_accel = interp(accel, P.BOSCH_ACCEL_LOOKUP_BP, P.BOSCH_ACCEL_LOOKUP_V)
-          apply_gas = interp(accel, P.BOSCH_GAS_LOOKUP_BP, P.BOSCH_GAS_LOOKUP_V)
-          can_sends.extend(hondacan.create_acc_commands(self.packer, enabled, apply_accel, apply_gas, idx, stopping, starting, CS.CP.carFingerprint))
-
-        else:
-          apply_gas = clip(actuators.gas, 0., 1.)
-          apply_brake = int(clip(self.brake_last * P.BRAKE_MAX, 0, P.BRAKE_MAX - 1))
-          pump_on, self.last_pump_ts = brake_pump_hysteresis(apply_brake, self.apply_brake_last, self.last_pump_ts, ts)
-#          can_sends.append(hondacan.create_brake_command(self.packer, apply_brake, pump_on,
-#            pcm_override, pcm_cancel_cmd, hud.fcw, idx, CS.CP.carFingerprint, CS.stock_brake))
-          self.apply_brake_last = apply_brake
-
-          if CS.CP.enableGasInterceptor:
-            # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
-            # This prevents unexpected pedal range rescaling
-            can_sends.append(create_gas_command(self.packer, apply_gas, idx))
+#    else:
+#      # Send gas and brake commands.
+#      if (frame % 2) == 0:
+#        idx = frame // 2
+#        ts = frame * DT_CTRL
+#        if CS.CP.carFingerprint in HONDA_BOSCH:
+#          accel = actuators.gas - actuators.brake
+#
+#          # TODO: pass in LoC.long_control_state and use that to decide starting/stopping
+#          stopping = accel < 0 and CS.out.vEgo < 0.3
+#          starting = accel > 0 and CS.out.vEgo < 0.3
+#
+#          # Prevent rolling backwards
+#          accel = -1.0 if stopping else accel
+#
+#          apply_accel = interp(accel, P.BOSCH_ACCEL_LOOKUP_BP, P.BOSCH_ACCEL_LOOKUP_V)
+#          apply_gas = interp(accel, P.BOSCH_GAS_LOOKUP_BP, P.BOSCH_GAS_LOOKUP_V)
+#          can_sends.extend(hondacan.create_acc_commands(self.packer, enabled, apply_accel, apply_gas, idx, stopping, starting, CS.CP.carFingerprint))
+#
+#        else:
+#          apply_gas = clip(actuators.gas, 0., 1.)
+#          apply_brake = int(clip(self.brake_last * P.BRAKE_MAX, 0, P.BRAKE_MAX - 1))
+#          pump_on, self.last_pump_ts = brake_pump_hysteresis(apply_brake, self.apply_brake_last, self.last_pump_ts, ts)
+##          can_sends.append(hondacan.create_brake_command(self.packer, apply_brake, pump_on,
+##            pcm_override, pcm_cancel_cmd, hud.fcw, idx, CS.CP.carFingerprint, CS.stock_brake))
+#          self.apply_brake_last = apply_brake
+#
+#          if CS.CP.enableGasInterceptor:
+#            # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
+#            # This prevents unexpected pedal range rescaling
+#            can_sends.append(create_gas_command(self.packer, apply_gas, idx))
 
     return can_sends
