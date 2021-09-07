@@ -482,6 +482,8 @@ static void pigeon_publish_raw(PubMaster &pm, const std::string &dat) {
 }
 
 void pigeon_thread() {
+  // fred 
+  return; // connect on a white panda hangs indefinitely, so completely skip the thread for our WP branch
   PubMaster pm({"ubloxRaw"});
   bool ignition_last = false;
 
