@@ -259,7 +259,8 @@ static int toyota_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   int bus_fwd = -1;
   if (!relay_malfunction) {
     if (bus_num == 0) {
-      bus_fwd = 2;
+//      bus_fwd = 2;
+      bus_fwd = -1;
     }
     if (bus_num == 2) {
       int addr = GET_ADDR(to_fwd);
@@ -270,7 +271,8 @@ static int toyota_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
       int is_acc_msg = (addr == 0x343);
       int block_msg = is_lkas_msg || is_acc_msg;
       if (!block_msg) {
-        bus_fwd = 0;
+//        bus_fwd = 0;
+        bus_fwd = -1;
       }
     }
   }
