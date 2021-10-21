@@ -1,6 +1,7 @@
 from selfdrive.car import dbc_dict
 
 class CAR:
+  PRIUSC = "TOYOTA PRIUS C 2016"
   PRIUS = "TOYOTA PRIUS 2017"
   RAV4H = "TOYOTA RAV4 HYBRID 2017"
   RAV4 = "TOYOTA RAV4 2017"
