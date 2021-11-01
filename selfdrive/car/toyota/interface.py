@@ -67,7 +67,28 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.lqr.l = [0.3233671, 0.3185757]
       ret.lateralTuning.lqr.dcGain = 0.002237852961363602
 
+    elif candidate == CAR.PRIUS_C:
+# new car 2016 prius c    	
+      stop_and_go = False
+      ret.safetyParam = 88  # see conversion factor for STEER_TORQUE_EPS in dbc file
+      ret.wheelbase = 2.70
+      ret.steerRatio = 18.27   # unknown end-to-end spec
+      tire_stiffness_factor = 0.6371   # hand-tune
+      ret.mass = 3045. * CV.LB_TO_KG + STD_CARGO_KG
+
+      ret.lateralTuning.init('indi')
+      ret.lateralTuning.indi.innerLoopGainBP = [0.]
+      ret.lateralTuning.indi.innerLoopGainV = [4.0]
+      ret.lateralTuning.indi.outerLoopGainBP = [0.]
+      ret.lateralTuning.indi.outerLoopGainV = [3.0]
+      ret.lateralTuning.indi.timeConstantBP = [0.]
+      ret.lateralTuning.indi.timeConstantV = [1.0]
+      ret.lateralTuning.indi.actuatorEffectivenessBP = [0.]
+      ret.lateralTuning.indi.actuatorEffectivenessV = [1.0]
+      ret.steerActuatorDelay = 0.3
+
     elif candidate == CAR.COROLLA:
+# Old COROLLA
       stop_and_go = False
       ret.safetyParam = 88
       ret.wheelbase = 2.70
