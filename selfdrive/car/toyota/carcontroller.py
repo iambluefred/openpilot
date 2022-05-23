@@ -38,7 +38,6 @@ TARGET_IDS = [0x340, 0x341, 0x342, 0x343, 0x344, 0x345,
               0x373, 0x374, 0x375, 0x380, 0x381, 0x382,
               0x383]
 
-
 def accel_hysteresis(accel, accel_steady, enabled):
 
   # for small accel oscillations within ACCEL_HYST_GAP, don't change the accel command
@@ -229,9 +228,9 @@ class CarController(object):
         # This prevents unexpected pedal range rescaling
         can_sends.append(create_gas_command(self.packer, apply_gas, frame//2))
 
-    if frame % 10 == 0 and ECU.CAM in self.fake_ecus and not forwarding_camera:
-      for addr in TARGET_IDS:
-        can_sends.append(create_video_target(frame//10, addr))
+#    if frame % 10 == 0 and ECU.CAM in self.fake_ecus and not forwarding_camera:
+#      for addr in TARGET_IDS:
+#        can_sends.append(create_video_target(frame//10, addr))
 
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display
@@ -249,26 +248,26 @@ class CarController(object):
     if (frame % 100 == 0 or send_ui) and ECU.CAM in self.fake_ecus:
       can_sends.append(create_ui_command(self.packer, steer, sound1, sound2, left_line, right_line, left_lane_depart, right_lane_depart))
 
-    if frame % 100 == 0 and ECU.DSU in self.fake_ecus and self.car_fingerprint not in TSSP2_CAR:
-      can_sends.append(create_fcw_command(self.packer, fcw))
-
-    #*** static msgs ***
-
-    for (addr, ecu, cars, bus, fr_step, vl) in STATIC_MSGS:
-      if frame % fr_step == 0 and ecu in self.fake_ecus and self.car_fingerprint in cars and not (ecu == ECU.CAM and forwarding_camera):
-        # special cases
-        if fr_step == 5 and ecu == ECU.CAM and bus == 1:
-          cnt = (((frame // 5) % 7) + 1) << 5
-          vl = chr(cnt) + vl
-        elif addr in (0x489, 0x48a) and bus == 0:
-          # add counter for those 2 messages (last 4 bits)
-          cnt = ((frame // 100) % 0xf) + 1
-          if addr == 0x48a:
-            # 0x48a has a 8 preceding the counter
-            cnt += 1 << 7
-          vl += chr(cnt)
-
-        can_sends.append(make_can_msg(addr, vl, bus, False))
+#    if frame % 100 == 0 and ECU.DSU in self.fake_ecus and self.car_fingerprint not in TSSP2_CAR:
+#      can_sends.append(create_fcw_command(self.packer, fcw))
+#
+#    #*** static msgs ***
+#
+#    for (addr, ecu, cars, bus, fr_step, vl) in STATIC_MSGS:
+#      if frame % fr_step == 0 and ecu in self.fake_ecus and self.car_fingerprint in cars and not (ecu == ECU.CAM and forwarding_camera):
+#        # special cases
+#        if fr_step == 5 and ecu == ECU.CAM and bus == 1:
+#          cnt = (((frame // 5) % 7) + 1) << 5
+#          vl = chr(cnt) + vl
+#        elif addr in (0x489, 0x48a) and bus == 0:
+#          # add counter for those 2 messages (last 4 bits)
+#          cnt = ((frame // 100) % 0xf) + 1
+#          if addr == 0x48a:
+#            # 0x48a has a 8 preceding the counter
+#            cnt += 1 << 7
+#          vl += chr(cnt)
+#
+#        can_sends.append(make_can_msg(addr, vl, bus, False))
 
 
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan'))
