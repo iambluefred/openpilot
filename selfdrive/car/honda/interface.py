@@ -288,7 +288,8 @@ class CarInterface(CarInterfaceBase):
     # to a negative value, so it won't matter. Otherwise, add 0.5 mph margin to not
     # conflict with PCM acc
     stop_and_go = candidate in (HONDA_BOSCH | {CAR.CIVIC}) or ret.enableGasInterceptor
-    ret.minEnableSpeed = -1. if stop_and_go else 25.5 * CV.MPH_TO_MS
+#    ret.minEnableSpeed = -1. if stop_and_go else 25.5 * CV.MPH_TO_MS
+    ret.minEnableSpeed = -1.
 
     # TODO: start from empirically derived lateral slip stiffness for the civic and scale by
     # mass and CG position, so all cars will have approximately similar dyn behaviors
