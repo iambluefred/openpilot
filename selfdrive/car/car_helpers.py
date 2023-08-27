@@ -87,8 +87,11 @@ def fingerprint(logcan, timeout):
 
 def get_car(logcan, sendcan=None, passive=True):
   # TODO: timeout only useful for replays so controlsd can start before unlogger
-  timeout = 2. if passive else None
-  candidate, fingerprints = fingerprint(logcan, timeout)
+#  timeout = 2. if passive else None
+#  candidate, fingerprints = fingerprint(logcan, timeout)
+  fingerprints = {0:{170: 8}}
+  candidate = "TOYOTA COROLLA 2017"
+
 
   if candidate is None:
     cloudlog.warning("car doesn't match any fingerprints: %r", fingerprints)
