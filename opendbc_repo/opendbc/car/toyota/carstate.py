@@ -46,20 +46,6 @@ class CarState(CarStateBase):
 
     self.distance_button = 0
 
-    # ZSS (Zorro Secondary Steering) support variables
-    self.zss_enabled = CP.flags & ToyotaFlags.ZSS.value
-    self.zss_compute = False
-    self.zss_cruise_active_last = False
-    self.zss_angle_offset = 0.0
-    self.zss_steer = 0.0
-    self.zss_angle_offset_active = False
-    self.zss_allowed = True  # Flag to enable/disable ZSS functionality
-    self.zss_threshold = 1e-3  # Threshold for angle detection
-    self.zss_override_stock = True  # Whether to override stock steering angle
-    self.zss_initializing = True  # Flag for initialization phase
-    self.zss_init_counter = 0  # Counter for initialization
-    self.zss_temporary_disable = False  # Flag for temporary disabling
-
     self.pcm_follow_distance = 0
 
     self.acc_type = 1
@@ -114,36 +100,6 @@ class CarState(CarStateBase):
     ret.steeringRateDeg = cp.vl["STEER_ANGLE_SENSOR"]["STEER_RATE"]
     torque_sensor_angle_deg = cp.vl["STEER_TORQUE_SENSOR"]["STEER_ANGLE"]
 
-# ZSS support - process SECONDARY_STEER_ANGLE if available and enabled
-if self.zss_enabled and cp.can_valid and "SECONDARY_STEER_ANGLE" in cp.vl:
-    # Get ZSS angle from secondary steering sensor
-    self.zss_steer = cp.vl["SECONDARY_STEER_ANGLE"]["ZORRO_STEER"]
-    
-    # During initialization
-    if self.zss_initializing:
-        self.zss_init_counter += 1
-        if self.zss_init_counter > 100:  # Wait for some frames before activating
-            self.zss_initializing = False
-    
-    # Track cruise state changes to compute offset
-    cruise_active = bool(cp.vl["PCM_CRUISE"]["CRUISE_ACTIVE"])
-    if cruise_active and not self.zss_cruise_active_last and self.zss_allowed and not self.zss_temporary_disable:
-        self.zss_compute = True
-    self.zss_cruise_active_last = cruise_active
-
-    # Compute ZSS offset when conditions are right
-    if self.zss_compute and not self.zss_initializing:
-        if abs(ret.steeringAngleDeg) > self.zss_threshold and abs(self.zss_steer) > self.zss_threshold:
-            self.zss_angle_offset = self.zss_steer - ret.steeringAngleDeg
-            self.zss_angle_offset_active = True
-            self.zss_compute = False
-    
-    # Apply ZSS offset to steering angle if active
-    if self.zss_angle_offset_active and self.zss_override_stock and not self.zss_temporary_disable:
-        stock_angle = ret.steeringAngleDeg  # Save original for logging if needed
-        ret.steeringAngleDeg = self.zss_steer - self.zss_angle_offset
-# ZSS-End
-
     # On some cars, the angle measurement is non-zero while initializing
     if abs(torque_sensor_angle_deg) > 1e-3 and not bool(cp.vl["STEER_TORQUE_SENSOR"]["STEER_ANGLE_INITIALIZING"]):
       self.accurate_steer_angle_seen = True
@@ -155,10 +111,7 @@ if self.zss_enabled and cp.can_valid and "SECONDARY_STEER_ANGLE" in cp.vl:
 
       if self.angle_offset.initialized:
         ret.steeringAngleOffsetDeg = self.angle_offset.x
-#        ret.steeringAngleDeg = torque_sensor_angle_deg - self.angle_offset.x
-        # Only apply standard EPS offset if ZSS is not active
-        if not (self.zss_enabled and self.zss_angle_offset_active and self.zss_override_stock):
-            ret.steeringAngleDeg = torque_sensor_angle_deg - self.angle_offset.x
+        ret.steeringAngleDeg = torque_sensor_angle_deg - self.angle_offset.x
 
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
     ret.leftBlinker = cp.vl["BLINKERS_STATE"]["TURN_SIGNALS"] == 1
@@ -256,10 +209,6 @@ if self.zss_enabled and cp.can_valid and "SECONDARY_STEER_ANGLE" in cp.vl:
       ("PCM_CRUISE_SM", 1),
       ("STEER_TORQUE_SENSOR", 50),
     ]
-
-    # Add SECONDARY_STEER_ANGLE message when ZSS is enabled
-    if CP.flags & ToyotaFlags.ZSS.value:
-        pt_messages.append(("SECONDARY_STEER_ANGLE", 0))
 
     if CP.flags & ToyotaFlags.SECOC.value:
       pt_messages += [
