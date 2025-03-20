@@ -61,20 +61,35 @@ class ToyotaFlags(IntFlag):
   # Detected flags
   HYBRID = 1
   DISABLE_RADAR = 4
+  ZSS = 8  # Zorro Secondary Steering
 
   # Static flags
-  TSS2 = 8
-  NO_DSU = 16
-  UNSUPPORTED_DSU = 32
-  RADAR_ACC = 64
+  TSS2 = 16
+  NO_DSU = 32
+  UNSUPPORTED_DSU = 64
+  RADAR_ACC = 128
   # these cars use the Lane Tracing Assist (LTA) message for lateral control
-  ANGLE_CONTROL = 128
-  NO_STOP_TIMER = 256
+  ANGLE_CONTROL = 256
+  NO_STOP_TIMER = 512
   # these cars are speculated to allow stop and go when the DSU is unplugged
-  SNG_WITHOUT_DSU = 512
+  SNG_WITHOUT_DSU = 1024
   # these cars can utilize 2.0 m/s^2
-  RAISED_ACCEL_LIMIT = 1024
-  SECOC = 2048
+  RAISED_ACCEL_LIMIT = 2048
+  SECOC = 4096
+
+#  # Static flags
+#  TSS2 = 8
+#  NO_DSU = 16
+#  UNSUPPORTED_DSU = 32
+#  RADAR_ACC = 64
+#  # these cars use the Lane Tracing Assist (LTA) message for lateral control
+#  ANGLE_CONTROL = 128
+#  NO_STOP_TIMER = 256
+#  # these cars are speculated to allow stop and go when the DSU is unplugged
+#  SNG_WITHOUT_DSU = 512
+#  # these cars can utilize 2.0 m/s^2
+#  RAISED_ACCEL_LIMIT = 1024
+#  SECOC = 2048
 
 class Footnote(Enum):
   CAMRY = CarFootnote(
