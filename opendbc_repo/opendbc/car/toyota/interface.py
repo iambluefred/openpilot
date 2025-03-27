@@ -151,6 +151,10 @@ class CarInterface(CarInterfaceBase):
       if ret.flags & ToyotaFlags.HYBRID.value:
         ret.longitudinalActuatorDelay = 0.05
 
+    # ZSS detected!
+    if 0x23 in fingerprint[0]:
+      ret.flags |= ToyotaFlags.ZSS.value
+
     return ret
 
   @staticmethod

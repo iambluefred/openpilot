@@ -97,6 +97,7 @@ class Bus(StrEnum):
   party = auto()
   ap_party = auto()
 
+  zss = auto()
 
 def apply_driver_steer_torque_limits(apply_torque, apply_torque_last, driver_torque, LIMITS):
 
