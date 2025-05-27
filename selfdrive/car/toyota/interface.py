@@ -39,6 +39,9 @@ class CarInterface(CarInterfaceBase):
 
       ret.steerActuatorDelay = 0.12  # Default delay, Prius has larger delay
       ret.steerLimitTimer = 0.4
+      # 2025/05/27 ZSS
+      if 0x23 in fingerprint[0]:  # Detect if ZSS is present
+        ret.flags |= ToyotaFlags.ZSS.value
 
     ret.stoppingControl = False  # Toyota starts braking more when it thinks you want to stop
 
