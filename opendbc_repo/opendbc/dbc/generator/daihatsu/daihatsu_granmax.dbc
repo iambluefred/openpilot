@@ -1,0 +1,452 @@
+CM_ "Daihatsu Gran Max (S403/S413) powertrain + chassis CAN";
+CM_ "Base: perodua_psd_pt.dbc (Perodua Ativa). The Gran Max shares the";
+CM_ "Daihatsu PSD CAN layer: 21 of that DBC's 23 car messages appear in a";
+CM_ "153 s Gran Max highway capture (220676 frames, 69 IDs), and its signal";
+CM_ "definitions decode to sane values on this car.";
+CM_ "Frame checksum is the Toyota scheme, verified 100%% on 47 IDs.";
+CM_ "MSG_xxx entries are IDs seen on the Gran Max that the Ativa DBC does";
+CM_ "not cover - layout and CHECKSUM only, signals not decoded yet.";
+CM_ "Scaling factors inherited from the Ativa are NOT calibrated for this";
+CM_ "car. SPEED has been recalibrated to 0.01 (its raw value is identical";
+CM_ "to BUTTONS.UI_SPEED on this car); the rest are still Ativa values.";
+VERSION ""
+
+
+NS_ :
+    NS_DESC_
+    CM_
+    BA_DEF_
+    BA_
+    VAL_
+    CAT_DEF_
+    CAT_
+    FILTER
+    BA_DEF_DEF_
+    EV_DATA_
+    ENVVAR_DATA_
+    SGTYPE_
+    SGTYPE_VAL_
+    BA_DEF_SGTYPE_
+    BA_SGTYPE_
+    SIG_TYPE_REF_
+    VAL_TABLE_
+    SIG_GROUP_
+    SIG_VALTYPE_
+    SIGTYPE_VALTYPE_
+    BO_TX_BU_
+    BA_DEF_REL_
+    BA_REL_
+    BA_DEF_DEF_REL_
+    BU_SG_REL_
+    BU_EV_REL_
+    BU_BO_REL_
+    SG_MUL_VAL_
+
+BS_:
+
+BU_: EON XXX INTERCEPTOR ANY ACTUATOR SAFETY
+
+
+BO_ 8 STAYALIVE_1: 0 XXX
+
+BO_ 51 STAYALIVE_2: 0 XXX
+
+BO_ 160 MSG_0A0: 5 XXX
+ SG_ CHECKSUM : 39|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 161 BRAKE: 8 XXX
+ SG_ SPEED : 39|16@0+ (0.01,0) [0|65535] "km/h" XXX
+ SG_ BRAKE_PRESSURE : 48|8@1+ (0.005532,0) [0|255] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ BRAKE_ENGAGED : 5|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 164 STEERING_MODULE: 8 XXX
+ SG_ MAIN_TORQUE : 9|12@0- (1,0) [0|65535] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ STEER_ANGLE : 46|15@0- (0.10047,0) [-500|500] "" XXX
+
+BO_ 165 MSG_0A5: 4 XXX
+ SG_ CHECKSUM : 31|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 308 MSG_134: 6 XXX
+ SG_ CHECKSUM : 47|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 398 GAS_PEDAL: 8 XXX
+ SG_ PULSE_WHEN_PEDAL_ZERO : 2|1@0+ (1,0) [0|1] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ APPS_1 : 12|13@0+ (0.00015625,0) [0|2097151] "%" XXX
+ SG_ APPS_2 : 28|13@0+ (0.00006742,0) [0|1023] "" XXX
+ SG_ APPS_3 : 44|13@0+ (0.00009,0) [0|7] "" XXX
+
+BO_ 399 GAS_PEDAL_2: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ GAS_PEDAL_STEP : 1|1@0+ (1,0) [0|1] "" XXX
+ SG_ IS_ACCEL : 5|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 400 MSG_190: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 409 MSG_199: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 410 AUTO_IDLE: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ AUTO_IDLE_EN : 8|1@1+ (1,0) [0|511] "" XXX
+ SG_ AUTO_IDLE_BTN : 21|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 416 WHEEL_SPEED: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ WHEELSPEED_F : 7|24@0+ (0.00001,0) [0|16777215] "" XXX
+ SG_ WHEELSPEED_B : 31|24@0+ (0.00000250,0) [0|16777215] "" XXX
+
+BO_ 417 MSG_1A1: 7 XXX
+ SG_ CHECKSUM : 55|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 427 BUTTONS: 8 XXX
+ SG_ PWR_BTN : 28|1@0+ (1,0) [0|1] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ UI_SPEED : 15|16@0+ (0.01,0) [0|65535] "" XXX
+ SG_ HIGHBEAM_BTN : 42|1@0+ (1,0) [0|1] "" XXX
+ SG_ AUTOIDLE_BTN : 39|1@0+ (1,0) [0|1] "" XXX
+ SG_ LKC_BTN : 35|1@0+ (1,0) [0|1] "" XXX
+ SG_ FCW_BTN : 38|1@1+ (1,0) [0|511] "" XXX
+ SG_ DISTANCE_BTN : 7|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 429 MSG_1AD: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 448 EPS_SHAFT_TORQUE: 4 XXX
+ SG_ CHECKSUM : 31|8@0+ (1,0) [0|255] "" XXX
+ SG_ STEERING_TORQUE : 8|8@1+ (1,0) [0|255] "" XXX
+
+BO_ 464 STEERING_LKAS: 8 XXX
+ SG_ COUNTER : 8|4@1+ (1,0) [0|15] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_1 : 22|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_ME_1_2 : 30|1@0+ (1,0) [0|1] "" XXX
+ SG_ STEER_CMD : 7|11@0- (1,0) [0|255] "" XXX
+ SG_ SET_ME_0 : 39|24@0+ (1,0) [0|16777215] "" XXX
+ SG_ STEER_REQ : 21|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 496 MSG_1F0: 5 XXX
+ SG_ CHECKSUM : 39|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 512 GAS_COMMAND: 8 SAFETY
+ SG_ GAS_COMMAND : 7|16@0+ (1,0) [0|1] "" ACTUATOR
+ SG_ GAS_COMMAND2 : 23|16@0+ (1,0) [0|1] "" ACTUATOR
+ SG_ ENABLE : 40|1@0+ (1,0) [0|1] "" ACTUATOR
+ SG_ COUNTER_PEDAL : 51|4@0+ (1,0) [0|15] "" ACTUATOR
+ SG_ CHECKSUM_PEDAL : 63|8@0+ (1,0) [0|255] "" ACTUATOR
+
+BO_ 513 GAS_SENSOR: 6 ACTUATOR
+ SG_ STATE : 35|4@0+ (1,0) [0|15] "" SAFETY
+ SG_ INTERCEPTOR_GAS : 7|16@0+ (0.0007,-0.342) [0|1] "" SAFETY
+ SG_ INTERCEPTOR_GAS2 : 23|16@0+ (0.0007,-0.691) [0|1] "" SAFETY
+
+BO_ 514 TORQUE_COMMAND: 8 SAFETY
+ SG_ INTERCEPTOR_MAIN_TORQUE : 7|16@0+ (1,0) [0|1] "" ACTUATOR
+ SG_ INTERCEPTOR_SUB_TORQUE : 23|16@0+ (1,0) [0|1] "" ACTUATOR
+ SG_ DIRECTION : 32|1@0+ (1,0) [0|1] "" ACTUATOR
+ SG_ ENABLE : 40|1@0+ (1,0) [0|1] "" ACTUATOR
+ SG_ COUNTER_STEERING : 51|4@0+ (1,0) [0|15] "" ACTUATOR
+ SG_ CHECKSUM_STEERING : 63|8@0+ (1,0) [0|255] "" ACTUATOR
+
+BO_ 516 RIGHT_STALK: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ LEFT_SIGNAL : 9|1@0+ (1,0) [0|1] "" XXX
+ SG_ RIGHT_SIGNAL : 8|1@0+ (1,0) [0|1] "" XXX
+ SG_ GENERIC_TOGGLE : 1|1@0+ (1,0) [0|1] "" XXX
+ SG_ HIGH_BEAM : 0|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 519 PCM_BUTTONS_HYBRID: 6 XXX
+ SG_ GAS_PRESSED : 12|1@0+ (1,0) [0|1] "" XXX
+ SG_ RES_PLUS : 6|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_MINUS : 5|1@0+ (1,0) [0|1] "" XXX
+ SG_ CANCEL : 4|1@0+ (1,0) [0|1] "" XXX
+ SG_ CHECKSUM : 47|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 520 PCM_BUTTONS: 6 XXX
+ SG_ ACC_RDY : 9|1@0+ (1,0) [0|1] "" XXX
+ SG_ RES_PLUS : 6|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_MINUS : 5|1@0+ (1,0) [0|1] "" XXX
+ SG_ CANCEL : 4|1@0+ (1,0) [0|1] "" XXX
+ SG_ COUNTER : 24|4@1+ (1,0) [0|15] "" XXX
+ SG_ PEDAL_DEPRESSED : 12|1@0+ (1,0) [0|1] "" XXX
+ SG_ CHECKSUM : 47|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_1 : 11|1@0+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_2 : 31|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 524 TRANSMISSION: 6 XXX
+ SG_ CHECKSUM : 47|8@0+ (1,0) [0|255] "" XXX
+ SG_ GEAR : 15|4@0+ (1,0) [0|255] "" XXX
+
+BO_ 608 WHEEL_SPEED_CLEAN: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ WHEELSPEED : 44|13@0+ (0.011,0) [0|8191] "" XXX
+
+BO_ 609 MSG_261: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 624 ADAS_AEB: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_XC0 : 7|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_XFF_1 : 23|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_XFF_2 : 31|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_XFF_3 : 39|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_XFF_4 : 47|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_X15_1 : 15|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_X15_2 : 55|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_X60 : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 625 ACC_BRAKE: 8 XXX
+ SG_ COUNTER : 52|3@0+ (1,0) [0|255] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_1_WHEN_ENGAGE : 8|1@0+ (1,0) [0|1] "" XXX
+ SG_ MAGNITUDE : 47|8@0+ (0.01,-2) [0|255] "" XXX
+ SG_ BRAKE_REQ : 13|1@0+ (1,0) [0|1] "" XXX
+ SG_ AEB_REQ1 : 20|1@0+ (1,0) [0|1] "" XXX
+ SG_ AEB_REQ2 : 11|1@0+ (1,0) [0|1] "" XXX
+ SG_ AEB_REQ3 : 9|1@0+ (1,0) [0|1] "" XXX
+ SG_ PUMP_REACTION2 : 31|8@0- (0.1,0) [0|16777215] "" XXX
+ SG_ PUMP_REACTION1 : 35|4@0+ (0.1,0) [0|1] "" XXX
+ SG_ AEB_1019 : 7|10@0+ (1,0) [0|255] "" XXX
+ SG_ CRUISE_STANDSTILL : 12|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 627 ACC_CMD_HUD: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_SPEED : 7|8@0+ (1,0) [0|255] "" XXX
+ SG_ FOLLOW_DISTANCE : 15|2@0+ (1,0) [0|3] "" XXX
+ SG_ IS_LEAD : 11|1@0+ (1,0) [0|1] "" XXX
+ SG_ IS_ACCEL : 38|1@0+ (1,0) [0|1] "" XXX
+ SG_ IS_DECEL : 37|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_ME_1_2 : 9|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_ME_1 : 54|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_0_WHEN_ENGAGE : 40|1@0+ (1,0) [0|1] "" XXX
+ SG_ ACC_CMD : 23|16@0+ (0.01,0) [0|127] "" XXX
+ SG_ SET_1_WHEN_ENGAGE : 13|1@0+ (1,0) [0|1] "" XXX
+ SG_ UNKNOWN1 : 47|1@0+ (1,0) [0|1] "" XXX
+ SG_ UNKNOWN2 : 33|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 628 LKAS_HUD: 8 XXX
+ SG_ LKAS_SET : 19|1@1+ (1,0) [0|3] "" XXX
+ SG_ LKAS_ENGAGED : 30|1@0+ (1,0) [0|3] "" XXX
+ SG_ LANE_RIGHT_DETECT : 34|1@0+ (1,0) [0|7] "" XXX
+ SG_ LANE_LEFT_DETECT : 36|1@0+ (1,0) [0|1] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_X02 : 48|8@1+ (1,0) [0|3] "" XXX
+ SG_ HOLD_WARNING : 18|1@0+ (1,0) [0|1] "" XXX
+ SG_ LDA_RELATED1 : 35|1@0+ (1,0) [0|1] "" XXX
+ SG_ LDA_ALERT : 14|1@0+ (1,0) [0|1] "" XXX
+ SG_ LDA_OFF : 13|1@0+ (1,0) [0|1] "" XXX
+ SG_ AEB_ALARM : 8|1@0+ (1,0) [0|1] "" XXX
+ SG_ AEB_BRAKE : 23|1@0+ (1,0) [0|1] "" XXX
+ SG_ FRONT_DEPART : 9|1@0+ (1,0) [0|1] "" XXX
+ SG_ FCW_DISABLE : 28|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 736 MSG_2E0: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 752 MSG_2F0: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 834 BSM: 8 XXX
+ SG_ BSM_CHIME : 23|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 848 MSG_350: 5 XXX
+ SG_ CHECKSUM : 39|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 856 METER_CLUSTER: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ SEAT_BELT_WARNING : 0|1@0+ (1,0) [0|1] "" XXX
+ SG_ SEAT_BELT_WARNING2 : 10|1@0+ (1,0) [0|1] "" XXX
+ SG_ RIGHT_SIGNAL : 15|1@0+ (1,0) [0|3] "" XXX
+ SG_ LEFT_SIGNAL : 14|1@0+ (1,0) [0|3] "" XXX
+ SG_ MAIN_DOOR : 2|1@1+ (1,0) [0|3] "" XXX
+ SG_ LEFT_BACK_DOOR : 5|1@0+ (1,0) [0|1] "" XXX
+ SG_ LEFT_FRONT_DOOR : 3|1@0+ (1,0) [0|1] "" XXX
+ SG_ RIGHT_BACK_DOOR : 4|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 857 MSG_359: 4 XXX
+ SG_ CHECKSUM : 31|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 900 HANDBRAKE: 4 XXX
+ SG_ CHECKSUM : 31|8@0+ (1,0) [0|255] "" XXX
+ SG_ HANDBRAKE_ENGAGED : 24|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 912 MSG_390: 4 XXX
+ SG_ CHECKSUM : 31|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 976 MSG_3D0: 5 XXX
+ SG_ CHECKSUM : 39|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 980 MSG_3D4: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1012 MSG_3F4: 7 XXX
+ SG_ CHECKSUM : 55|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1032 MSG_408: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1033 MSG_409: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1034 MSG_40A: 8 XXX
+
+BO_ 1088 MSG_440: 8 XXX
+
+BO_ 1090 MSG_442: 8 XXX
+
+BO_ 1100 MSG_44C: 8 XXX
+
+BO_ 1152 MSG_480: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1160 MSG_488: 4 XXX
+ SG_ CHECKSUM : 31|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1162 MSG_48A: 8 XXX
+
+BO_ 1163 MSG_48B: 8 XXX
+
+BO_ 1164 MSG_48C: 8 XXX
+
+BO_ 1168 ADAS_UNKNOWN: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+ SG_ SET_ME_X18 : 39|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_2 : 47|16@0- (1,0) [0|65535] "" XXX
+ SG_ NEW_SIGNAL_3 : 23|16@0- (1,0) [0|65535] "" XXX
+ SG_ NEW_SIGNAL_1 : 7|16@0- (1,0) [0|4294967295] "" XXX
+
+BO_ 1176 MSG_498: 3 XXX
+ SG_ CHECKSUM : 23|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1188 MSG_4A4: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1200 MSG_4B0: 3 XXX
+ SG_ CHECKSUM : 23|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1217 MSG_4C1: 8 XXX
+
+BO_ 1218 MSG_4C2: 8 XXX
+
+BO_ 1219 MSG_4C3: 8 XXX
+
+BO_ 1224 MSG_4C8: 8 XXX
+
+BO_ 1245 MSG_4DD: 8 XXX
+
+BO_ 1247 MSG_4DF: 8 XXX
+
+BO_ 1248 MSG_4E0: 8 XXX
+
+BO_ 1267 FWD_CAM_HEARTBEAT: 8 CAR
+ SG_ SET_ME_X23 : 7|8@0+ (1,0) [0|255] "" ANY
+ SG_ SET_ME_X01_1 : 23|8@0+ (1,0) [0|255] "" ANY
+ SG_ SET_ME_X01_2 : 31|8@0+ (1,0) [0|255] "" ANY
+
+BO_ 1271 MSG_4F7: 8 XXX
+
+BO_ 1312 MSG_520: 8 XXX
+
+BO_ 1408 MSG_580: 8 XXX
+
+BO_ 1409 MSG_581: 8 XXX
+
+BO_ 1410 MSG_582: 8 XXX
+
+BO_ 1416 MSG_588: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1417 MSG_589: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1418 MSG_58A: 8 XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 1434 MSG_59A: 8 XXX
+
+BO_ 1435 MSG_59B: 8 XXX
+
+
+VAL_ 627 FOLLOW_DISTANCE 2 "1bar" 1 "2bar" 0 "3bar" ;
+VAL_ 513 STATE 5 "FAULT_TIMEOUT" 4 "FAULT_STARTUP" 3 "FAULT_SCE" 2 "FAULT_SEND" 1 "FAULT_BAD_CHECKSUM" 0 "NO_FAULT" ;
+VAL_ 524 GEAR 8 "R" 4 "N" 2 "D" 0 "P" ;
+
+CM_ BO_ 8 "not seen in the Gran Max capture";
+CM_ BO_ 51 "not seen in the Gran Max capture";
+CM_ BO_ 160 "static, 12.0 ms (83 Hz), 12729 frames, checksum=toyota";
+CM_ BO_ 161 "dynamic, 12.0 ms (83 Hz), 12730 frames, checksum=toyota";
+CM_ BO_ 164 "dynamic, 10.0 ms (100 Hz), 15272 frames, checksum=toyota";
+CM_ BO_ 165 "static, 10.0 ms (100 Hz), 15272 frames, checksum=toyota";
+CM_ BO_ 308 "dynamic, 12.3 ms (81 Hz), 12431 frames, checksum=toyota";
+CM_ BO_ 398 "dynamic, 16.4 ms (61 Hz), 9324 frames, checksum=toyota";
+CM_ BO_ 399 "dynamic, 16.4 ms (61 Hz), 9323 frames, checksum=toyota";
+CM_ BO_ 400 "dynamic, 16.4 ms (61 Hz), 9324 frames, checksum=toyota";
+CM_ BO_ 409 "dynamic, 16.4 ms (61 Hz), 9323 frames, checksum=toyota";
+CM_ BO_ 410 "dynamic, 16.4 ms (61 Hz), 9324 frames, checksum=toyota";
+CM_ BO_ 416 "dynamic, 18.0 ms (56 Hz), 8486 frames, checksum=toyota";
+CM_ BO_ 417 "dynamic, 18.0 ms (56 Hz), 8487 frames, checksum=toyota";
+CM_ BO_ 427 "dynamic, 20.0 ms (50 Hz), 7638 frames, checksum=toyota";
+CM_ BO_ 429 "dynamic, 20.0 ms (50 Hz), 7645 frames, checksum=toyota";
+CM_ BO_ 448 "dynamic, 24.0 ms (42 Hz), 6369 frames, checksum=toyota";
+CM_ BO_ 464 "static, 25.0 ms (40 Hz), 6111 frames, checksum=toyota";
+CM_ BO_ 496 "dynamic, 30.0 ms (33 Hz), 5092 frames, checksum=toyota";
+CM_ BO_ 512 "not seen in the Gran Max capture";
+CM_ BO_ 513 "not seen in the Gran Max capture";
+CM_ BO_ 514 "not seen in the Gran Max capture";
+CM_ BO_ 516 "dynamic, 30.0 ms (33 Hz), 5091 frames, checksum=toyota";
+CM_ BO_ 519 "not seen in the Gran Max capture";
+CM_ BO_ 520 "dynamic, 32.8 ms (31 Hz), 4662 frames, checksum=toyota";
+CM_ BO_ 524 "dynamic, 32.8 ms (31 Hz), 4661 frames, checksum=toyota";
+CM_ BO_ 608 "dynamic, 48.0 ms (21 Hz), 3183 frames, checksum=toyota";
+CM_ BO_ 609 "dynamic, 48.0 ms (21 Hz), 3183 frames, checksum=toyota";
+CM_ BO_ 624 "static, 50.0 ms (20 Hz), 3056 frames, checksum=toyota";
+CM_ BO_ 625 "dynamic, 50.0 ms (20 Hz), 3056 frames, checksum=toyota";
+CM_ BO_ 627 "static, 50.0 ms (20 Hz), 3056 frames, checksum=toyota";
+CM_ BO_ 628 "static, 50.0 ms (20 Hz), 3056 frames, checksum=toyota";
+CM_ BO_ 736 "static, 60.0 ms (17 Hz), 2544 frames, checksum=toyota";
+CM_ BO_ 752 "dynamic, 65.5 ms (15 Hz), 2331 frames, checksum=toyota";
+CM_ BO_ 834 "not seen in the Gran Max capture";
+CM_ BO_ 848 "dynamic, 80.0 ms (12 Hz), 1910 frames, checksum=toyota";
+CM_ BO_ 856 "dynamic, 79.9 ms (13 Hz), 1911 frames, checksum=toyota";
+CM_ BO_ 857 "static, 79.9 ms (13 Hz), 1911 frames, checksum=toyota";
+CM_ BO_ 900 "static, 100.0 ms (10 Hz), 1527 frames, checksum=toyota";
+CM_ BO_ 912 "static, 120.2 ms (8 Hz), 1272 frames, checksum=toyota";
+CM_ BO_ 976 "dynamic, 204.8 ms (5 Hz), 746 frames, checksum=toyota";
+CM_ BO_ 980 "static, 199.8 ms (5 Hz), 765 frames, checksum=toyota";
+CM_ BO_ 1012 "dynamic, 262.2 ms (4 Hz), 583 frames, checksum=toyota";
+CM_ BO_ 1032 "dynamic, 500.0 ms (2 Hz), 306 frames, checksum=toyota";
+CM_ BO_ 1033 "static, 500.0 ms (2 Hz), 306 frames, checksum=toyota";
+CM_ BO_ 1034 "dynamic, 499.6 ms (2 Hz), 306 frames, checksum=none";
+CM_ BO_ 1088 "static, 259.8 ms (4 Hz), 589 frames, checksum=none";
+CM_ BO_ 1090 "static, 260.0 ms (4 Hz), 589 frames, checksum=none";
+CM_ BO_ 1100 "static, 260.1 ms (4 Hz), 590 frames, checksum=none";
+CM_ BO_ 1152 "static, 1002.2 ms (1 Hz), 152 frames, checksum=toyota";
+CM_ BO_ 1160 "static, 1024.2 ms (1 Hz), 150 frames, checksum=toyota";
+CM_ BO_ 1162 "static, 4195.0 ms (0 Hz), 37 frames, checksum=none";
+CM_ BO_ 1163 "static, 4195.0 ms (0 Hz), 37 frames, checksum=none";
+CM_ BO_ 1164 "static, 4195.0 ms (0 Hz), 37 frames, checksum=none";
+CM_ BO_ 1168 "dynamic, 100.0 ms (10 Hz), 1481 frames, checksum=toyota";
+CM_ BO_ 1176 "static, 999.4 ms (1 Hz), 153 frames, checksum=toyota";
+CM_ BO_ 1188 "dynamic, 999.2 ms (1 Hz), 153 frames, checksum=toyota";
+CM_ BO_ 1200 "static, 1000.1 ms (1 Hz), 153 frames, checksum=toyota";
+CM_ BO_ 1217 "static, 983.2 ms (1 Hz), 156 frames, checksum=none";
+CM_ BO_ 1218 "static, 950.4 ms (1 Hz), 161 frames, checksum=none";
+CM_ BO_ 1219 "static, 960.2 ms (1 Hz), 159 frames, checksum=none";
+CM_ BO_ 1224 "static, 969.2 ms (1 Hz), 157 frames, checksum=none";
+CM_ BO_ 1245 "static, 999.4 ms (1 Hz), 153 frames, checksum=none";
+CM_ BO_ 1247 "static, 983.2 ms (1 Hz), 156 frames, checksum=none";
+CM_ BO_ 1248 "static, 1000.1 ms (1 Hz), 153 frames, checksum=none";
+CM_ BO_ 1267 "static, 960.1 ms (1 Hz), 159 frames, checksum=none";
+CM_ BO_ 1271 "static, 1001.1 ms (1 Hz), 153 frames, checksum=none";
+CM_ BO_ 1312 "dynamic, 1000.0 ms (1 Hz), 153 frames, checksum=none";
+CM_ BO_ 1408 "static, 1532.0 ms (1 Hz), 100 frames, checksum=none";
+CM_ BO_ 1409 "static, 1532.0 ms (1 Hz), 100 frames, checksum=none";
+CM_ BO_ 1410 "static, 1532.0 ms (1 Hz), 100 frames, checksum=none";
+CM_ BO_ 1416 "static, 5121.1 ms (0 Hz), 29 frames, checksum=toyota";
+CM_ BO_ 1417 "static, 5120.8 ms (0 Hz), 29 frames, checksum=toyota";
+CM_ BO_ 1418 "static, 5120.9 ms (0 Hz), 29 frames, checksum=toyota";
+CM_ BO_ 1434 "static, 1000.0 ms (1 Hz), 153 frames, checksum=none";
+CM_ BO_ 1435 "static, 1000.0 ms (1 Hz), 153 frames, checksum=none";

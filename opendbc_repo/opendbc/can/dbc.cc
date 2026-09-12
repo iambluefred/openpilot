@@ -53,7 +53,7 @@ ChecksumState* get_checksum(const std::string& dbc_name) {
   ChecksumState* s = nullptr;
   if (startswith(dbc_name, {"honda_", "acura_"})) {
     s = new ChecksumState({4, 2, 3, 5, false, HONDA_CHECKSUM, &honda_checksum});
-  } else if (startswith(dbc_name, {"toyota_", "lexus_"})) {
+  } else if (startswith(dbc_name, {"toyota_", "lexus_", "daihatsu_"})) {
     s = new ChecksumState({8, -1, 7, -1, false, TOYOTA_CHECKSUM, &toyota_checksum});
   } else if (startswith(dbc_name, "hyundai_canfd_generated")) {
     s = new ChecksumState({16, -1, 0, -1, true, HKG_CAN_FD_CHECKSUM, &hkg_can_fd_checksum});
