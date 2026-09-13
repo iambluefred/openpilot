@@ -15,9 +15,15 @@ class CarInterface(CarInterfaceBase):
     ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.daihatsu)]
     ret.radarUnavailable = True
 
-    # Receive-only port: the signal layer is not decoded and no control
-    # message has been identified. This must stay True until both are done.
-    ret.dashcamOnly = True
+    # Control output is still gated, but no longer by dashcamOnly: carcontroller
+    # sends nothing, safety_daihatsu.h rejects every TX, and cruiseState is not
+    # decoded, so pcmCruise can never enable openpilot. Turning this off lets
+    # pandad actually apply SAFETY_DAIHATSU so the safety mode can be exercised.
+    #
+    # WARNING: do not decode cruiseState until carcontroller can send a real
+    # LKAS message. openpilot would enter the enabled state with no actuation,
+    # which looks engaged to the driver while doing nothing.
+    ret.dashcamOnly = False
 
     ret.steerActuatorDelay = 0.1
     ret.steerLimitTimer = 0.4
