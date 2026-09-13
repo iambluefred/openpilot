@@ -49,7 +49,15 @@ class CAR(Platforms):
   )
 
 
-FW_QUERY_CONFIG = FwQueryConfig(
+# Disabled until real ECU firmware has been read off the car.
+#
+# opendbc requires a brand to declare FW_QUERY_CONFIG and FW_VERSIONS together,
+# or neither. Declaring this config while fingerprints.FW_VERSIONS holds no ECUs
+# makes get_brand_ecu_matches() return an empty list for "daihatsu", which then
+# divides by zero in get_fw_versions_ordered() (fw_versions.py) and crashes card
+# for *every* car. Rename this back to FW_QUERY_CONFIG only together with
+# restoring FW_VERSIONS.
+_FW_QUERY_CONFIG_TODO = FwQueryConfig(
   requests=[
     Request(
       [StdQueries.SHORT_TESTER_PRESENT_REQUEST, StdQueries.OBD_VERSION_REQUEST],

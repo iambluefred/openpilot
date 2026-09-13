@@ -22,7 +22,13 @@ FINGERPRINTS = {
   }],
 }
 
-# TODO: no ECU firmware has been read off the car yet
-FW_VERSIONS: dict[str, dict[tuple, list[bytes]]] = {
+# Disabled until real ECU firmware has been read off the car.
+#
+# This must stay *absent*, not empty: get_interface_attr() keys off hasattr(), so
+# an empty FW_VERSIONS still puts "daihatsu" into VERSIONS while FW_QUERY_CONFIGS
+# lacks it, and match_fw_to_car() then raises KeyError('daihatsu'). Five call
+# sites index FW_QUERY_CONFIGS by a VERSIONS brand (fw_versions.py 117/162/183/
+# 218/272). Restore this together with values.FW_QUERY_CONFIG.
+_FW_VERSIONS_TODO: dict[str, dict[tuple, list[bytes]]] = {
   CAR.DAIHATSU_GRAN_MAX: {},
 }

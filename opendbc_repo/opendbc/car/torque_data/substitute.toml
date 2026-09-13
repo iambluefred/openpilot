@@ -85,3 +85,9 @@ legend = ["LAT_ACCEL_FACTOR", "MAX_LAT_ACCEL_MEASURED", "FRICTION"]
 "SUBARU_FORESTER_PREGLOBAL" = "SUBARU_IMPREZA"
 "SUBARU_LEGACY_PREGLOBAL" = "SUBARU_IMPREZA"
 "SUBARU_ASCENT" = "SUBARU_FORESTER"
+
+# Not measured. Gran Max is a van; the Sienna is the closest measured platform.
+# get_std_params() does get_torque_params()[candidate] unconditionally, so every
+# new platform must appear in one of the three torque_data tomls or car detection
+# dies with KeyError.
+"DAIHATSU_GRAN_MAX" = "TOYOTA_SIENNA"
