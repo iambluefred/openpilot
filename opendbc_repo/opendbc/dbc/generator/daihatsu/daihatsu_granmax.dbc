@@ -180,6 +180,18 @@ BO_ 524 TRANSMISSION: 6 XXX
  SG_ CHECKSUM : 47|8@0+ (1,0) [0|255] "" XXX
  SG_ GEAR : 15|4@0+ (1,0) [0|255] "" XXX
 
+BO_ 528 PEDAL_FROM: 8 INTERCEPTOR
+ SG_ PEDAL_A2_S1 : 7|16@0+ (0.0048875855,0) [0|5] "V" XXX
+ SG_ PEDAL_A3_S2 : 23|16@0+ (0.0048875855,0) [0|5] "V" XXX
+ SG_ RESERVED : 39|24@0+ (1,0) [0|0] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 529 PEDAL_PIVOT: 8 INTERCEPTOR
+ SG_ PEDAL_A0_PIVOT_S1 : 7|16@0+ (0.0048875855,0) [0|5] "V" XXX
+ SG_ PEDAL_A1_PIVOT_S2 : 23|16@0+ (0.0048875855,0) [0|5] "V" XXX
+ SG_ RESERVED : 39|24@0+ (1,0) [0|0] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
 BO_ 608 WHEEL_SPEED_CLEAN: 8 XXX
  SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
  SG_ WHEELSPEED : 44|13@0+ (0.011,0) [0|8191] "" XXX
@@ -400,6 +412,8 @@ CM_ BO_ 516 "dynamic, 30.0 ms (33 Hz), 5091 frames, checksum=toyota";
 CM_ BO_ 519 "not seen in the Gran Max capture";
 CM_ BO_ 520 "dynamic, 32.8 ms (31 Hz), 4662 frames, checksum=toyota";
 CM_ BO_ 524 "dynamic, 32.8 ms (31 Hz), 4661 frames, checksum=toyota";
+CM_ BO_ 528 "Arduino pedal board (pedal.ino), CAN_ID_IN 0x210, ADC A2/A3, 10.0 ms, checksum=toyota";
+CM_ BO_ 529 "Arduino pedal board (pedal.ino), CAN_ID_OUT 0x211, ADC A0/A1, 10.0 ms, checksum=toyota";
 CM_ BO_ 608 "dynamic, 48.0 ms (21 Hz), 3183 frames, checksum=toyota";
 CM_ BO_ 609 "dynamic, 48.0 ms (21 Hz), 3183 frames, checksum=toyota";
 CM_ BO_ 624 "static, 50.0 ms (20 Hz), 3056 frames, checksum=toyota";
