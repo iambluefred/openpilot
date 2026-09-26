@@ -74,6 +74,9 @@ class ToyotaFlags(IntFlag):
   RAISED_ACCEL_LIMIT = 1024
   SECOC = 2048
 
+  # op0.11.2-zss: Zorro Steering Sensor detected (SECONDARY_STEER_ANGLE 0x23 on bus 0)
+  ZSS = 2 ** 16
+
   # deprecated flags
   # these cars are speculated to allow stop and go when the DSU is unplugged
   SNG_WITHOUT_DSU_DEPRECATED = 512

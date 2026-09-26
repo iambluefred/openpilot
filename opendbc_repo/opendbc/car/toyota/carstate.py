@@ -51,6 +51,12 @@ class CarState(CarStateBase):
     self.gvc = 0.0
     self.secoc_synchronization = None
 
+    # op0.11.2-zss
+    self.zss = None
+    if CP.flags & ToyotaFlags.ZSS.value:
+      from opendbc.car.toyota.zss import ZSS
+      self.zss = ZSS()
+
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
@@ -108,6 +114,11 @@ class CarState(CarStateBase):
       if self.angle_offset.initialized:
         ret.steeringAngleOffsetDeg = self.angle_offset.x
         ret.steeringAngleDeg = torque_sensor_angle_deg - self.angle_offset.x
+
+    # op0.11.2-zss: must run after the torque-sensor offset above, otherwise it gets overwritten
+    if self.zss is not None:
+      ret.steeringAngleDeg = self.zss.update(can_parsers[Bus.zss], ret.steeringAngleDeg,
+                                             bool(cp.vl["PCM_CRUISE"]["CRUISE_ACTIVE"]))
 
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
     ret.leftBlinker = cp.vl["BLINKERS_STATE"]["TURN_SIGNALS"] == 1
@@ -207,7 +218,13 @@ class CarState(CarStateBase):
       ("BLINKERS_STATE", float('nan')),
     ]
 
-    return {
+    parsers = {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, 0),
       Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 2),
     }
+
+    # op0.11.2-zss: NaN frequency = a missing ZSS never faults the car, zss.py falls back to stock instead
+    if CP.flags & ToyotaFlags.ZSS.value:
+      parsers[Bus.zss] = CANParser("toyota_zss", [("SECONDARY_STEER_ANGLE", float('nan'))], 0)
+
+    return parsers

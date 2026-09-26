@@ -57,13 +57,19 @@ class CarInterface(CarInterfaceBase):
     if Ecu.hybrid in found_ecus:
       ret.flags |= ToyotaFlags.HYBRID.value
 
+    # op0.11.2-zss: Zorro Steering Sensor, only enabled for TOYOTA_PRIUS (2016-20 Prius / Prius Prime)
+    if candidate == CAR.TOYOTA_PRIUS and 0x23 in fingerprint[0]:
+      ret.flags |= ToyotaFlags.ZSS.value
+
     if candidate == CAR.TOYOTA_PRIUS:
       stop_and_go = True
       # Only give steer angle deadzone to for bad angle sensor prius
       for fw in car_fw:
         if fw.ecu == "eps" and not fw.fwVersion == b'8965B47060\x00\x00\x00\x00\x00\x00':
           ret.steerActuatorDelay = 0.25
-          CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning, steering_angle_deadzone_deg=0.2)
+          # op0.11.2-zss: the deadzone is only for the low-resolution stock angle sensor
+          if not ret.flags & ToyotaFlags.ZSS.value:
+            CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning, steering_angle_deadzone_deg=0.2)
         # 2021+ TSS2 steering rack swapped into a TSS-P car, not supported
         if fw.ecu == "eps" and fw.fwVersion == b'8965B47070\x00\x00\x00\x00\x00\x00':
           ret.dashcamOnly = True
