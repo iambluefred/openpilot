@@ -117,7 +117,7 @@ class CarState(CarStateBase):
 
     # op0.11.2-zss: must run after the torque-sensor offset above, otherwise it gets overwritten
     if self.zss is not None:
-      ret.steeringAngleDeg = self.zss.update(can_parsers[Bus.zss], ret.steeringAngleDeg,
+      ret.steeringAngleDeg = self.zss.update(can_parsers[Bus.zss], ret.steeringAngleDeg, ret.steeringRateDeg,
                                              bool(cp.vl["PCM_CRUISE"]["CRUISE_ACTIVE"]))
 
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))

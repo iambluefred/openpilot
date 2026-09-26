@@ -38,6 +38,8 @@ BU_: XXX
 
 BO_ 35 SECONDARY_STEER_ANGLE: 8 XXX
  SG_ ZORRO_STEER : 7|24@0- (0.004901594652,0) [-500|500] "deg" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
 
 CM_ "Zorro Steering Sensor (ZSS) for Toyota TSS-P, used by op0.11.2-zss (TOYOTA_PRIUS only)";
+CM_ SG_ 35 CHECKSUM "smartZSS ZSS_V02.ino data[7]: Toyota checksum over data[0..6]. data[3] is reserved (0), data[4..6] carry an angle rate that is not defined here.";
 CM_ BO_ 35 "ZSS is a high-precision steering angle sensor that can replace the lower resolution sensor in most TSS1 Toyotas. Learn more: https://github.com/commaai/openpilot/wiki/Toyota-Lexus#zorro-steering-sensor-zss";
