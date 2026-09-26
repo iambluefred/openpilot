@@ -209,6 +209,12 @@ class CarState(CarStateBase):
 
         buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
+    elif self.CP.flags & ToyotaFlags.SDSU.value:
+      # op0.11.2-zss: follow distance button as forwarded by the sDSU
+      prev_distance_button = self.distance_button
+      self.distance_button = can_parsers[Bus.sdsu].vl["SDSU"]["FD_BUTTON"]
+      buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
+
     ret.buttonEvents = buttonEvents
     return ret
 
@@ -222,6 +228,10 @@ class CarState(CarStateBase):
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, 0),
       Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 2),
     }
+
+    # op0.11.2-zss: sDSU must be alive (100 Hz), otherwise CAN error -> openpilot disengages
+    if CP.flags & ToyotaFlags.SDSU.value:
+      parsers[Bus.sdsu] = CANParser("toyota_sdsu", [("SDSU", 100)], 0)
 
     # op0.11.2-zss: NaN frequency = a missing ZSS never faults the car, zss.py falls back to stock instead
     if CP.flags & ToyotaFlags.ZSS.value:

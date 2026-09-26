@@ -61,6 +61,8 @@ class ToyotaSafetyFlags(IntFlag):
 class ToyotaFlags(IntFlag):
   # Detected flags
   HYBRID = 1
+  # op0.11.2-zss: smartDSU detected (SDSU 0x2FF on bus 0), same value as dragonpilot / old upstream SMART_DSU
+  SDSU = 2
   DISABLE_RADAR = 4
 
   # Static flags

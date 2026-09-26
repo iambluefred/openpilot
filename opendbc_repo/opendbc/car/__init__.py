@@ -91,6 +91,7 @@ class Bus(StrEnum):
   party = auto()
   ap_party = auto()
   zss = auto()  # Toyota Zorro Steering Sensor (op0.11.2-zss)
+  sdsu = auto()  # Toyota smartDSU (op0.11.2-zss)
 
 
 def rate_limit(new_value, last_value, dw_step, up_step):

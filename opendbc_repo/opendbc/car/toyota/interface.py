@@ -102,13 +102,22 @@ class CarInterface(CarInterfaceBase):
       if alpha_long:
         ret.flags |= ToyotaFlags.DISABLE_RADAR.value
 
+    # op0.11.2-zss: smartDSU (as in dragonpilot). The sDSU sits in front of the stock DSU, blocks its ACC_CONTROL
+    # and forwards the follow distance button as SDSU (0x2FF). Only for TSS-P cars that still have a DSU.
+    if not (ret.flags & (ToyotaFlags.TSS2 | ToyotaFlags.NO_DSU | ToyotaFlags.RADAR_ACC)) and 0x2FF in fingerprint[0]:
+      ret.flags |= ToyotaFlags.SDSU.value
+      stop_and_go = True
+      ret.alphaLongitudinalAvailable = False
+
     # openpilot longitudinal enabled by default:
     #  - TSS2 cars with camera sending ACC_CONTROL where we can block it
+    #  - TSS-P cars with an sDSU
     # openpilot longitudinal behind alpha long toggle:
     #  - TSS2 radar ACC cars (disables radar)
 
     ret.openpilotLongitudinalControl = ((bool(ret.flags & ToyotaFlags.TSS2) and not (ret.flags & ToyotaFlags.RADAR_ACC)) or
-                                        bool(ret.flags & ToyotaFlags.DISABLE_RADAR.value))
+                                        bool(ret.flags & ToyotaFlags.DISABLE_RADAR.value) or
+                                        bool(ret.flags & ToyotaFlags.SDSU.value))
 
     ret.autoResumeSng = ret.openpilotLongitudinalControl
 

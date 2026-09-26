@@ -247,6 +247,11 @@ class CarController(CarControllerBase):
         elif net_acceleration_request_min > 0.3:
           self.permit_braking = False
 
+        # op0.11.2-zss: sDSU jerk fix (dragonpilot / sunnypilot): no PID / pitch / delay compensation on sDSU cars,
+        # send the planner accel directly
+        if self.CP.flags & ToyotaFlags.SDSU.value:
+          pcm_accel_cmd = actuators.accel
+
         pcm_accel_cmd = float(np.clip(pcm_accel_cmd, self.params.ACCEL_MIN, self.params.ACCEL_MAX))
 
         main_accel_cmd = 0. if self.CP.flags & ToyotaFlags.SECOC.value else pcm_accel_cmd
