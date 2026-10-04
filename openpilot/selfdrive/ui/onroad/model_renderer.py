@@ -29,6 +29,17 @@ NO_THROTTLE_COLORS = [
 ]
 
 
+# op0.11.2-zss: lead chevron color by distance (like dragonpilot): green -> orange -> red
+LEAD_COLOR_DIST_M = [10.0, 25.0, 40.0]                       # <= 10 m red, 25 m orange, >= 40 m green
+LEAD_COLOR_RGB = [(230, 40, 40), (255, 140, 0), (40, 200, 90)]
+LEAD_BORDER_COLOR = rl.Color(255, 255, 255, 200)
+
+
+def lead_color(d_rel: float, alpha: int = 255) -> rl.Color:
+  r, g, b = (int(np.interp(d_rel, LEAD_COLOR_DIST_M, [c[i] for c in LEAD_COLOR_RGB])) for i in range(3))
+  return rl.Color(r, g, b, alpha)
+
+
 @dataclass
 class ModelPoints:
   raw_points: np.ndarray = field(default_factory=lambda: np.empty((0, 3), dtype=np.float32))
@@ -40,6 +51,7 @@ class LeadVehicle:
   glow: list[tuple[float, float]] = field(default_factory=list)
   chevron: list[tuple[float, float]] = field(default_factory=list)
   fill_alpha: int = 0
+  d_rel: float = 0.0  # op0.11.2-zss: lead chevron color
 
 
 class ModelRenderer(Widget):
@@ -254,7 +266,7 @@ class ModelRenderer(Widget):
     glow = [(x + (sz * 1.35) + g_xo, y + sz + g_yo), (x, y - g_yo), (x - (sz * 1.35) - g_xo, y + sz + g_yo)]
     chevron = [(x + (sz * 1.25), y + sz), (x, y), (x - (sz * 1.25), y + sz)]
 
-    return LeadVehicle(glow=glow, chevron=chevron, fill_alpha=int(fill_alpha))
+    return LeadVehicle(glow=glow, chevron=chevron, fill_alpha=int(fill_alpha), d_rel=float(d_rel))
 
   def _draw_lane_lines(self):
     """Draw lane lines and road edges"""
@@ -306,8 +318,9 @@ class ModelRenderer(Widget):
       if not lead.glow or not lead.chevron:
         continue
 
-      rl.draw_triangle_fan(lead.glow, len(lead.glow), rl.Color(218, 202, 37, 255))
-      rl.draw_triangle_fan(lead.chevron, len(lead.chevron), rl.Color(201, 34, 49, lead.fill_alpha))
+      # op0.11.2-zss: lead chevron color: white border, solid fill colored by distance
+      rl.draw_triangle_fan(lead.glow, len(lead.glow), LEAD_BORDER_COLOR)
+      rl.draw_triangle_fan(lead.chevron, len(lead.chevron), lead_color(lead.d_rel))
 
   @staticmethod
   def _get_path_length_idx(pos_x_array: np.ndarray, path_distance: float) -> int:
