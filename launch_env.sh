@@ -20,3 +20,10 @@ if [ -z "$AGNOS_VERSION" ]; then
 fi
 
 export STAGING_ROOT="/data/safe_staging"
+
+# Prius c (NHP10): force the car model for this branch (zoom0.11.2-priusc).
+# The car has no fingerprint/FW entries, so auto-detect would fall back to MOCK.
+# Note: a platform picked in Settings > Vehicle (CarPlatformBundle) still wins
+# over FINGERPRINT; pick "Toyota Prius c 2012-21" there or leave it empty.
+export FINGERPRINT="TOYOTA_PRIUS_C"
+export SKIP_FW_QUERY=1
