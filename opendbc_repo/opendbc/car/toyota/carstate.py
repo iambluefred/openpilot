@@ -229,9 +229,9 @@ class CarState(CarStateBase):
       Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 2),
     }
 
-    # op0.11.2-zss: sDSU must be alive (100 Hz), otherwise CAN error -> openpilot disengages
+    # op0.11.2-zss: sDSU must be alive. smart_dsu firmware sends 0x2FF at ~50 Hz (TIM3 ~104.6 Hz, every 2nd tick)
     if CP.flags & ToyotaFlags.SDSU.value:
-      parsers[Bus.sdsu] = CANParser("toyota_sdsu", [("SDSU", 100)], 0)
+      parsers[Bus.sdsu] = CANParser("toyota_sdsu", [("SDSU", 50)], 0)
 
     # op0.11.2-zss: NaN frequency = a missing ZSS never faults the car, zss.py falls back to stock instead
     if CP.flags & ToyotaFlags.ZSS.value:
