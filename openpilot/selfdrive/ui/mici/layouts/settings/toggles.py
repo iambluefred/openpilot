@@ -8,6 +8,7 @@ from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationCircleButt
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.selfdrive.ui.layouts.settings.common import restart_needed_callback
 from openpilot.selfdrive.ui.ui_state import ui_state
+from openpilot.common import zss_flags
 
 PERSONALITY_TO_INT = log.LongitudinalPersonality.schema.enumerants
 
@@ -46,6 +47,10 @@ class TogglesLayoutMici(NavScroller):
                                        toggle_callback=self._on_experimental_mode)
     is_metric_toggle = BigParamControl("use metric units", "IsMetric")
     ldw_toggle = BigParamControl("lane departure warnings", "IsLdwEnabled")
+    # op0.11.2-zss: blinker lane change on/off, default OFF (stored in /data/personal_settings, not Params)
+    self._lane_change_toggle = BigToggle("blinker lane change",
+                                         initial_state=zss_flags.get_bool(zss_flags.LANE_CHANGE_ENABLED),
+                                         toggle_callback=lambda state: zss_flags.put_bool(zss_flags.LANE_CHANGE_ENABLED, state))
     always_on_dm_toggle = BigParamControl("always-on driver monitor", "AlwaysOnDM")
     record_front = BigParamControl("record & upload cabin camera", "RecordFront", toggle_callback=restart_needed_callback)
     record_mic = BigParamControl("record & upload mic audio", "RecordAudio", toggle_callback=restart_needed_callback)
@@ -56,6 +61,7 @@ class TogglesLayoutMici(NavScroller):
       self._experimental_btn,
       is_metric_toggle,
       ldw_toggle,
+      self._lane_change_toggle,
       always_on_dm_toggle,
       record_front,
       record_mic,
@@ -76,6 +82,7 @@ class TogglesLayoutMici(NavScroller):
     enable_openpilot.set_enabled(lambda: not ui_state.engaged)
     record_front.set_enabled(False if ui_state.params.get_bool("RecordFrontLock") else (lambda: not ui_state.engaged))
     record_mic.set_enabled(lambda: not ui_state.engaged)
+    self._lane_change_toggle.set_enabled(lambda: not ui_state.engaged)  # op0.11.2-zss: no change while engaged
 
     if ui_state.params.get_bool("ShowDebugInfo"):
       gui_app.set_show_touches(True)
@@ -114,6 +121,7 @@ class TogglesLayoutMici(NavScroller):
     # Refresh toggles from params to mirror external changes
     for key, item in self._refresh_toggles:
       item.set_checked(ui_state.params.get_bool(key))
+    self._lane_change_toggle.set_checked(zss_flags.get_bool(zss_flags.LANE_CHANGE_ENABLED))  # op0.11.2-zss
 
   def _on_experimental_mode(self, state: bool):
     if state and not ui_state.params.get_bool("ExperimentalModeConfirmed"):

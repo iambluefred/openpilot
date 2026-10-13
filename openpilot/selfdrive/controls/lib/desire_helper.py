@@ -1,6 +1,7 @@
 from openpilot.cereal import log
 from openpilot.common.constants import CV
 from openpilot.common.realtime import DT_MDL
+from openpilot.common import zss_flags
 
 LaneChangeState = log.LaneChangeState
 LaneChangeDirection = log.LaneChangeDirection
@@ -8,6 +9,7 @@ LaneChangeDirection = log.LaneChangeDirection
 LANE_CHANGE_SPEED_MIN = 20 * CV.MPH_TO_MS
 LANE_CHANGE_TIME_MAX = 10.
 LANE_CHANGE_START_TIME = 0.5
+LANE_CHANGE_FLAG_REFRESH = int(1. / DT_MDL)  # op0.11.2-zss: re-read the UI toggle about once per second
 
 class DesireHelper:
   def __init__(self):
@@ -16,6 +18,9 @@ class DesireHelper:
     self.lane_change_timer = 0.0
     self.prev_one_blinker = False
     self.desire = log.Desire.none
+    # op0.11.2-zss: blinker lane change on/off from the UI toggle, default OFF
+    self.lane_change_enabled = zss_flags.get_bool(zss_flags.LANE_CHANGE_ENABLED)
+    self.flag_counter = 0
 
   @staticmethod
   def get_lane_change_direction(CS):
@@ -24,7 +29,13 @@ class DesireHelper:
   def update(self, carstate, lateral_active, lane_change_prob):
     v_ego = carstate.vEgo
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
-    below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
+    # op0.11.2-zss: when the toggle is OFF, treat it like being below the lane change speed:
+    # the blinker never starts a lane change and openpilot keeps the current lane
+    self.flag_counter += 1
+    if self.flag_counter >= LANE_CHANGE_FLAG_REFRESH:
+      self.flag_counter = 0
+      self.lane_change_enabled = zss_flags.get_bool(zss_flags.LANE_CHANGE_ENABLED)
+    below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN or not self.lane_change_enabled
 
     if not lateral_active or self.lane_change_timer > LANE_CHANGE_TIME_MAX:
       self.lane_change_state = LaneChangeState.off
