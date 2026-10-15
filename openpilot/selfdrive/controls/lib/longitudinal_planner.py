@@ -14,6 +14,7 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import T_IDX
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, get_accel_from_plan, should_stop
 from openpilot.selfdrive.car.cruise import V_CRUISE_MAX, V_CRUISE_UNSET
 from openpilot.common.swaglog import cloudlog
+from openpilot.common import zss_flags
 
 A_CRUISE_MAX_VALS = [1.6, 1.2, 0.8, 0.6]
 A_CRUISE_MAX_BP = [0., 10.0, 25., 40.]
@@ -22,6 +23,13 @@ A_CRUISE_MIN = -1.2
 CONTROL_N_T_IDX = ModelConstants.T_IDXS[:CONTROL_N]
 ALLOW_THROTTLE_THRESHOLD = 0.4
 MIN_ALLOW_THROTTLE_SPEED = 2.5
+
+# op0.11.2-zss: Adaptive Experimental Mode (AEM), idea from dragonpilot (own implementation).
+# In chill mode, when the model clearly wants to ease off the throttle, also add the model's
+# end-to-end accel as a candidate. The planner takes the minimum, so AEM can only slow the car
+# down earlier (e.g. a stopped car the lead detector has not picked up yet), never speed it up.
+AEM_EASE_OFF_PROB = 0.4                    # gasPressProb <= this -> model is easing off
+AEM_FLAG_REFRESH = int(1. / DT_MDL)        # re-read the UI toggle about once per second
 
 # Lookup table for turns
 _A_TOTAL_MAX_V = [1.7, 3.2]
@@ -61,6 +69,9 @@ class LongitudinalPlanner:
     self.fcw = False
     self.dt = dt
     self.allow_throttle = True
+    self.aem_enabled = zss_flags.get_bool(zss_flags.AEM_ENABLED, default=True)  # op0.11.2-zss
+    self.aem_flag_counter = 0
+    self.aem_active = False
 
     self.a_desired = init_a
     self.v_desired_filter = FirstOrderFilter(init_v, 2.0, self.dt)
@@ -95,6 +106,13 @@ class LongitudinalPlanner:
     throttle_probs = sm['modelV2'].meta.disengagePredictions.gasPressProbs
     throttle_prob = throttle_probs[1] if len(throttle_probs) > 1 else 1.0
     self.allow_throttle = throttle_prob > ALLOW_THROTTLE_THRESHOLD or v_ego <= MIN_ALLOW_THROTTLE_SPEED
+
+    # op0.11.2-zss: AEM
+    self.aem_flag_counter += 1
+    if self.aem_flag_counter >= AEM_FLAG_REFRESH:
+      self.aem_flag_counter = 0
+      self.aem_enabled = zss_flags.get_bool(zss_flags.AEM_ENABLED, default=True)
+    self.aem_active = self.aem_enabled and throttle_prob <= AEM_EASE_OFF_PROB
 
     steer_angle_without_offset = sm['carState'].steeringAngleDeg - sm['vehicleParameters'].angleOffsetDeg
 
@@ -138,7 +156,7 @@ class LongitudinalPlanner:
 
     candidates = [(output_a_target_mpc, self.mpc.source, output_should_stop_mpc),
                   (self.a_cruise, LongitudinalPlanSource.cruise, cruise_should_stop)]
-    if sm['selfdriveState'].experimentalMode:
+    if sm['selfdriveState'].experimentalMode or self.aem_active:  # op0.11.2-zss: AEM adds e2e in chill mode
       candidates.append((output_a_target_e2e, LongitudinalPlanSource.e2e, output_should_stop_e2e))
 
     output_a_target, self.mpc.source, _ = min(candidates, key=lambda c: c[0])

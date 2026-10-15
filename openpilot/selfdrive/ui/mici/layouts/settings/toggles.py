@@ -47,6 +47,10 @@ class TogglesLayoutMici(NavScroller):
                                        toggle_callback=self._on_experimental_mode)
     is_metric_toggle = BigParamControl("use metric units", "IsMetric")
     ldw_toggle = BigParamControl("lane departure warnings", "IsLdwEnabled")
+    # op0.11.2-zss: Adaptive Experimental Mode, default ON (stored in /data/personal_settings, not Params)
+    self._aem_toggle = BigToggle("adaptive experimental (AEM)",
+                                 initial_state=zss_flags.get_bool(zss_flags.AEM_ENABLED, default=True),
+                                 toggle_callback=lambda state: zss_flags.put_bool(zss_flags.AEM_ENABLED, state))
     # op0.11.2-zss: blinker lane change on/off, default OFF (stored in /data/personal_settings, not Params)
     self._lane_change_toggle = BigToggle("blinker lane change",
                                          initial_state=zss_flags.get_bool(zss_flags.LANE_CHANGE_ENABLED),
@@ -59,6 +63,7 @@ class TogglesLayoutMici(NavScroller):
     self._scroller.add_widgets([
       self._personality_toggle,
       self._experimental_btn,
+      self._aem_toggle,
       is_metric_toggle,
       ldw_toggle,
       self._lane_change_toggle,
@@ -83,6 +88,7 @@ class TogglesLayoutMici(NavScroller):
     record_front.set_enabled(False if ui_state.params.get_bool("RecordFrontLock") else (lambda: not ui_state.engaged))
     record_mic.set_enabled(lambda: not ui_state.engaged)
     self._lane_change_toggle.set_enabled(lambda: not ui_state.engaged)  # op0.11.2-zss: no change while engaged
+    self._aem_toggle.set_enabled(lambda: not ui_state.engaged)          # op0.11.2-zss: no change while engaged
 
     if ui_state.params.get_bool("ShowDebugInfo"):
       gui_app.set_show_touches(True)
@@ -111,17 +117,20 @@ class TogglesLayoutMici(NavScroller):
       if ui_state.has_longitudinal_control:
         self._experimental_btn.set_visible(True)
         self._personality_toggle.set_visible(True)
+        self._aem_toggle.set_visible(True)
       else:
         # no long for now
         self._experimental_btn.set_visible(False)
         self._experimental_btn.set_checked(False)
         self._personality_toggle.set_visible(False)
+        self._aem_toggle.set_visible(False)
         ui_state.params.remove("ExperimentalMode")
 
     # Refresh toggles from params to mirror external changes
     for key, item in self._refresh_toggles:
       item.set_checked(ui_state.params.get_bool(key))
     self._lane_change_toggle.set_checked(zss_flags.get_bool(zss_flags.LANE_CHANGE_ENABLED))  # op0.11.2-zss
+    self._aem_toggle.set_checked(zss_flags.get_bool(zss_flags.AEM_ENABLED, default=True))   # op0.11.2-zss
 
   def _on_experimental_mode(self, state: bool):
     if state and not ui_state.params.get_bool("ExperimentalModeConfirmed"):

@@ -3,13 +3,14 @@
 # This branch ships prebuilt: the Params key list is compiled into libparams_c.so,
 # so a new Params key would need a rebuild on the device. These settings are
 # plain files instead: /data/personal_settings/<name> containing "1" or "0".
-# A missing file means the default (False), so every setting starts OFF.
+# A missing file means the setting's default (see each name below).
 
 import os
 
 BASE_DIR = "/data/personal_settings" if os.path.isdir("/data") else os.path.expanduser("~/.comma/personal_settings")
 
 LANE_CHANGE_ENABLED = "LaneChangeEnabled"  # blinker lane change, default OFF
+AEM_ENABLED = "AEMEnabled"                 # Adaptive Experimental Mode, default ON (get_bool(..., default=True))
 
 
 def get_bool(name: str, default: bool = False) -> bool:
