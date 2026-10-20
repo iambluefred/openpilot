@@ -216,6 +216,11 @@ def main(demo=False):
   USBGPU = usbgpu_present() and usbgpu_compiled()
   if USBGPU:
     os.environ['HCQDEV_WAIT_TIMEOUT_MS'] = '3000'
+    # DIY eGPU: limit GPU power (W) so a weak 12V supply doesn't hang it. 0 = no limit
+    try:
+      os.environ['AM_POWER_LIMIT'] = open("/data/personal_settings/EgpuPowerLimitW").read().strip() or "60"
+    except OSError:
+      os.environ['AM_POWER_LIMIT'] = '60'
   params = Params()
   params.put_bool("UsbGpuLoading", USBGPU)
   params.remove("UsbGpuActive")
