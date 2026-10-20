@@ -3,7 +3,7 @@ from collections.abc import Callable
 from openpilot.cereal import log
 
 from openpilot.system.ui.widgets.scroller import NavScroller
-from openpilot.selfdrive.ui.mici.widgets.button import BigParamControl, BigMultiParamToggle, BigToggle, GreyBigButton
+from openpilot.selfdrive.ui.mici.widgets.button import BigParamControl, BigMultiParamToggle, BigMultiToggle, BigToggle, GreyBigButton
 from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationCircleButton
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.selfdrive.ui.layouts.settings.common import restart_needed_callback
@@ -11,6 +11,28 @@ from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.common import zss_flags
 
 PERSONALITY_TO_INT = log.LongitudinalPersonality.schema.enumerants
+
+# op0.11.2-zss: DIY eGPU power limit, tap to cycle. Stored in /data/personal_settings/EgpuPowerLimitW,
+# read by modeld when it starts (next drive).
+EGPU_POWER_LABELS = ["40 W", "60 W", "80 W"]
+EGPU_POWER_VALUES = ["40", "60", "80"]
+EGPU_POWER_DEFAULT = "60"
+
+
+class EgpuPowerToggle(BigMultiToggle):
+  def __init__(self):
+    super().__init__("eGPU power limit", EGPU_POWER_LABELS, select_callback=self._on_select)
+    self.load()
+
+  def load(self):
+    value = zss_flags.get_str(zss_flags.EGPU_POWER_LIMIT, EGPU_POWER_DEFAULT)
+    if value not in EGPU_POWER_VALUES:  # e.g. an old "0" (full): reset so UI and modeld agree
+      value = EGPU_POWER_DEFAULT
+      zss_flags.put_str(zss_flags.EGPU_POWER_LIMIT, value)
+    self.set_value(EGPU_POWER_LABELS[EGPU_POWER_VALUES.index(value)])
+
+  def _on_select(self, label: str):
+    zss_flags.put_str(zss_flags.EGPU_POWER_LIMIT, EGPU_POWER_VALUES[EGPU_POWER_LABELS.index(label)])
 
 
 class ExperimentalModeConfirmPage(NavScroller):
@@ -55,6 +77,7 @@ class TogglesLayoutMici(NavScroller):
     self._lane_change_toggle = BigToggle("blinker lane change",
                                          initial_state=zss_flags.get_bool(zss_flags.LANE_CHANGE_ENABLED),
                                          toggle_callback=lambda state: zss_flags.put_bool(zss_flags.LANE_CHANGE_ENABLED, state))
+    self._egpu_power_toggle = EgpuPowerToggle()  # op0.11.2-zss
     always_on_dm_toggle = BigParamControl("always-on driver monitor", "AlwaysOnDM")
     record_front = BigParamControl("record & upload cabin camera", "RecordFront", toggle_callback=restart_needed_callback)
     record_mic = BigParamControl("record & upload mic audio", "RecordAudio", toggle_callback=restart_needed_callback)
@@ -67,6 +90,7 @@ class TogglesLayoutMici(NavScroller):
       is_metric_toggle,
       ldw_toggle,
       self._lane_change_toggle,
+      self._egpu_power_toggle,
       always_on_dm_toggle,
       record_front,
       record_mic,
@@ -89,6 +113,7 @@ class TogglesLayoutMici(NavScroller):
     record_mic.set_enabled(lambda: not ui_state.engaged)
     self._lane_change_toggle.set_enabled(lambda: not ui_state.engaged)  # op0.11.2-zss: no change while engaged
     self._aem_toggle.set_enabled(lambda: not ui_state.engaged)          # op0.11.2-zss: no change while engaged
+    self._egpu_power_toggle.set_enabled(lambda: not ui_state.started)   # op0.11.2-zss: modeld reads it at start
 
     if ui_state.params.get_bool("ShowDebugInfo"):
       gui_app.set_show_touches(True)
@@ -131,6 +156,7 @@ class TogglesLayoutMici(NavScroller):
       item.set_checked(ui_state.params.get_bool(key))
     self._lane_change_toggle.set_checked(zss_flags.get_bool(zss_flags.LANE_CHANGE_ENABLED))  # op0.11.2-zss
     self._aem_toggle.set_checked(zss_flags.get_bool(zss_flags.AEM_ENABLED, default=True))   # op0.11.2-zss
+    self._egpu_power_toggle.load()                                                          # op0.11.2-zss
 
   def _on_experimental_mode(self, state: bool):
     if state and not ui_state.params.get_bool("ExperimentalModeConfirmed"):

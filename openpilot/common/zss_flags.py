@@ -11,6 +11,7 @@ BASE_DIR = "/data/personal_settings" if os.path.isdir("/data") else os.path.expa
 
 LANE_CHANGE_ENABLED = "LaneChangeEnabled"  # blinker lane change, default OFF
 AEM_ENABLED = "AEMEnabled"                 # Adaptive Experimental Mode, default ON (get_bool(..., default=True))
+EGPU_POWER_LIMIT = "EgpuPowerLimitW"       # DIY eGPU power limit in W, "0" = no limit, default "60" (read by modeld)
 
 
 def get_bool(name: str, default: bool = False) -> bool:
@@ -21,12 +22,24 @@ def get_bool(name: str, default: bool = False) -> bool:
     return default
 
 
+def get_str(name: str, default: str = "") -> str:
+  try:
+    with open(os.path.join(BASE_DIR, name)) as f:
+      return f.read().strip() or default
+  except (FileNotFoundError, OSError):
+    return default
+
+
 def put_bool(name: str, value: bool) -> None:
+  put_str(name, "1" if value else "0")
+
+
+def put_str(name: str, value: str) -> None:
   os.makedirs(BASE_DIR, exist_ok=True)
   path = os.path.join(BASE_DIR, name)
   tmp = path + ".tmp"
   with open(tmp, "w") as f:
-    f.write("1" if value else "0")
+    f.write(value)
     f.flush()
     os.fsync(f.fileno())
   os.replace(tmp, path)  # atomic: a reader never sees a half-written file
