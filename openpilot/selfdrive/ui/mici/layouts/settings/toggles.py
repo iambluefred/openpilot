@@ -21,7 +21,7 @@ EGPU_POWER_DEFAULT = "60"
 
 class EgpuPowerToggle(BigMultiToggle):
   def __init__(self):
-    super().__init__("eGPU power limit", EGPU_POWER_LABELS, select_callback=self._on_select)
+    super().__init__("eGPU power", EGPU_POWER_LABELS, select_callback=self._on_select)
     self.load()
 
   def load(self):
@@ -113,7 +113,7 @@ class TogglesLayoutMici(NavScroller):
     record_mic.set_enabled(lambda: not ui_state.engaged)
     self._lane_change_toggle.set_enabled(lambda: not ui_state.engaged)  # op0.11.2-zss: no change while engaged
     self._aem_toggle.set_enabled(lambda: not ui_state.engaged)          # op0.11.2-zss: no change while engaged
-    self._egpu_power_toggle.set_enabled(lambda: not ui_state.started)   # op0.11.2-zss: modeld reads it at start
+    self._egpu_power_toggle.set_enabled(lambda: not ui_state.engaged)   # op0.11.2-zss: used from the next drive
 
     if ui_state.params.get_bool("ShowDebugInfo"):
       gui_app.set_show_touches(True)
