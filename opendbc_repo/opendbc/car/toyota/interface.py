@@ -102,6 +102,12 @@ class CarInterface(CarInterfaceBase):
       if alpha_long:
         ret.flags |= ToyotaFlags.DISABLE_RADAR.value
 
+    # op0.11.2-priusc: Prius c has no radar (TSS-C uses a laser sensor). Never parse radar CAN and never
+    # send the radar tester present / FCW messages (DISABLE_RADAR); leads come from the vision model only.
+    if candidate == CAR.TOYOTA_PRIUS_C:
+      ret.radarUnavailable = True
+      ret.flags &= ~ToyotaFlags.DISABLE_RADAR.value
+
     # op0.11.2-zss: smartDSU (as in dragonpilot). The sDSU sits in front of the stock DSU, blocks its ACC_CONTROL
     # and forwards the follow distance button as SDSU (0x2FF). Only for TSS-P cars that still have a DSU.
     if not (ret.flags & (ToyotaFlags.TSS2 | ToyotaFlags.NO_DSU | ToyotaFlags.RADAR_ACC)) and 0x2FF in fingerprint[0]:
