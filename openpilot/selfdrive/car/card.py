@@ -9,6 +9,7 @@ from openpilot.cereal import log
 from opendbc.car.structs import car
 
 from openpilot.common.params import Params
+from openpilot.common import zss_flags
 from openpilot.common.realtime import config_realtime_process, Priority, Ratekeeper
 from openpilot.common.swaglog import cloudlog, ForwardingHandler
 
@@ -97,6 +98,14 @@ class Car:
       if cached_params_raw is not None:
         with car.CarParams.from_bytes(cached_params_raw) as _cached_params:
           cached_params = _cached_params
+
+      # op0.11.2-priusc: car model picked in the UI (AUTO = normal fingerprinting).
+      # Uses the stock FINGERPRINT / SKIP_FW_QUERY env vars, read by opendbc car_helpers.fingerprint().
+      car_model = zss_flags.get_car_model()
+      if car_model != zss_flags.CAR_MODEL_AUTO and car_model in interfaces:
+        os.environ["FINGERPRINT"] = car_model
+        os.environ["SKIP_FW_QUERY"] = "1"
+        carlog.warning(f"car model forced from UI: {car_model}")
 
       self.CI = get_car(*self.can_callbacks, obd_callback(self.params), alpha_long_allowed, is_release, cached_params)
       self.RI = interfaces[self.CI.CP.carFingerprint].RadarInterface(self.CI.CP)

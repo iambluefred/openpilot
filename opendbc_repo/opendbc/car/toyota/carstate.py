@@ -82,7 +82,8 @@ class CarState(CarStateBase):
     else:
       ret.gasPressed = cp.vl["PCM_CRUISE"]["GAS_RELEASED"] == 0
       can_gear = int(cp.vl["GEAR_PACKET"]["GEAR"])
-      if not self.CP.flags & ToyotaFlags.DISABLE_RADAR.value:
+      # op0.11.2-priusc: Prius c has no PRE_COLLISION (0x283); reading it would time out the bus
+      if not self.CP.flags & ToyotaFlags.DISABLE_RADAR.value and self.CP.carFingerprint != CAR.TOYOTA_PRIUS_C:
         ret.stockAeb = bool(cp_acc.vl["PRE_COLLISION"]["PRECOLLISION_ACTIVE"] and cp_acc.vl["PRE_COLLISION"]["FORCE"] < -1e-5)
 
     self.parse_wheel_speeds(ret,
@@ -155,7 +156,11 @@ class CarState(CarStateBase):
       cluster_set_speed = cp.vl["PCM_CRUISE_SM"]["UI_SET_SPEED"]
 
     # UI_SET_SPEED is always non-zero when main is on, hide until first enable
-    is_metric = cp.vl["BODY_CONTROL_STATE_2"]["UNITS"] in (1, 2)
+    # op0.11.2-priusc: Prius c has no BODY_CONTROL_STATE_2 (0x610); assume a metric cluster
+    if self.CP.carFingerprint == CAR.TOYOTA_PRIUS_C:
+      is_metric = True
+    else:
+      is_metric = cp.vl["BODY_CONTROL_STATE_2"]["UNITS"] in (1, 2)
     if ret.cruiseState.speed != 0:
       conversion_factor = CV.KPH_TO_MS if is_metric else CV.MPH_TO_MS
       ret.cruiseState.speedCluster = cluster_set_speed * conversion_factor
@@ -185,7 +190,8 @@ class CarState(CarStateBase):
       ret.leftBlindspot = (cp.vl["BSM"]["L_ADJACENT"] == 1) or (cp.vl["BSM"]["L_APPROACHING"] == 1)
       ret.rightBlindspot = (cp.vl["BSM"]["R_ADJACENT"] == 1) or (cp.vl["BSM"]["R_APPROACHING"] == 1)
 
-    if self.CP.carFingerprint != CAR.TOYOTA_PRIUS_V:
+    # op0.11.2-priusc: Prius c has no LKAS_HUD (0x412); leave it empty (create_ui_command checks len())
+    if self.CP.carFingerprint not in (CAR.TOYOTA_PRIUS_V, CAR.TOYOTA_PRIUS_C):
       self.lkas_hud = copy.copy(cp_cam.vl["LKAS_HUD"])
 
     if not (self.CP.flags & ToyotaFlags.UNSUPPORTED_DSU):

@@ -12,6 +12,15 @@ BASE_DIR = "/data/personal_settings" if os.path.isdir("/data") else os.path.expa
 LANE_CHANGE_ENABLED = "LaneChangeEnabled"  # blinker lane change, default OFF
 AEM_ENABLED = "AEMEnabled"                 # Adaptive Experimental Mode, default ON (get_bool(..., default=True))
 EGPU_POWER_LIMIT = "EgpuPowerLimitW"       # DIY eGPU power limit in W, "0" = no limit, default "60" (read by modeld)
+CAR_MODEL = "CarModel"                     # op0.11.2-priusc: "AUTO" (default) or a forced platform, read by card
+
+CAR_MODEL_AUTO = "AUTO"
+CAR_MODELS = (CAR_MODEL_AUTO, "TOYOTA_PRIUS_C")  # values the UI can store; anything else is treated as AUTO
+
+
+def get_car_model() -> str:
+  model = get_str(CAR_MODEL, CAR_MODEL_AUTO)
+  return model if model in CAR_MODELS else CAR_MODEL_AUTO
 
 
 def get_bool(name: str, default: bool = False) -> bool:

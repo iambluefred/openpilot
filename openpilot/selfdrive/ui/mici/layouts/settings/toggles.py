@@ -35,6 +35,24 @@ class EgpuPowerToggle(BigMultiToggle):
     zss_flags.put_str(zss_flags.EGPU_POWER_LIMIT, EGPU_POWER_VALUES[EGPU_POWER_LABELS.index(label)])
 
 
+# op0.11.2-priusc: car model, tap to cycle. Stored in /data/personal_settings/CarModel,
+# read by card when the car starts (next ignition). "auto" = normal fingerprinting.
+CAR_MODEL_LABELS = ["auto", "prius c"]
+CAR_MODEL_VALUES = list(zss_flags.CAR_MODELS)  # ["AUTO", "TOYOTA_PRIUS_C"]
+
+
+class CarModelToggle(BigMultiToggle):
+  def __init__(self):
+    super().__init__("car model", CAR_MODEL_LABELS, select_callback=self._on_select)
+    self.load()
+
+  def load(self):
+    self.set_value(CAR_MODEL_LABELS[CAR_MODEL_VALUES.index(zss_flags.get_car_model())])
+
+  def _on_select(self, label: str):
+    zss_flags.put_str(zss_flags.CAR_MODEL, CAR_MODEL_VALUES[CAR_MODEL_LABELS.index(label)])
+
+
 class ExperimentalModeConfirmPage(NavScroller):
   def __init__(self, on_confirm: Callable[[], None]):
     super().__init__()
@@ -78,6 +96,7 @@ class TogglesLayoutMici(NavScroller):
                                          initial_state=zss_flags.get_bool(zss_flags.LANE_CHANGE_ENABLED),
                                          toggle_callback=lambda state: zss_flags.put_bool(zss_flags.LANE_CHANGE_ENABLED, state))
     self._egpu_power_toggle = EgpuPowerToggle()  # op0.11.2-zss
+    self._car_model_toggle = CarModelToggle()    # op0.11.2-priusc
     always_on_dm_toggle = BigParamControl("always-on driver monitor", "AlwaysOnDM")
     record_front = BigParamControl("record & upload cabin camera", "RecordFront", toggle_callback=restart_needed_callback)
     record_mic = BigParamControl("record & upload mic audio", "RecordAudio", toggle_callback=restart_needed_callback)
@@ -91,6 +110,7 @@ class TogglesLayoutMici(NavScroller):
       ldw_toggle,
       self._lane_change_toggle,
       self._egpu_power_toggle,
+      self._car_model_toggle,
       always_on_dm_toggle,
       record_front,
       record_mic,
@@ -114,6 +134,7 @@ class TogglesLayoutMici(NavScroller):
     self._lane_change_toggle.set_enabled(lambda: not ui_state.engaged)  # op0.11.2-zss: no change while engaged
     self._aem_toggle.set_enabled(lambda: not ui_state.engaged)          # op0.11.2-zss: no change while engaged
     self._egpu_power_toggle.set_enabled(lambda: not ui_state.engaged)   # op0.11.2-zss: used from the next drive
+    self._car_model_toggle.set_enabled(lambda: ui_state.is_offroad())    # op0.11.2-priusc: only offroad, used from the next drive
 
     if ui_state.params.get_bool("ShowDebugInfo"):
       gui_app.set_show_touches(True)
@@ -157,6 +178,7 @@ class TogglesLayoutMici(NavScroller):
     self._lane_change_toggle.set_checked(zss_flags.get_bool(zss_flags.LANE_CHANGE_ENABLED))  # op0.11.2-zss
     self._aem_toggle.set_checked(zss_flags.get_bool(zss_flags.AEM_ENABLED, default=True))   # op0.11.2-zss
     self._egpu_power_toggle.load()                                                          # op0.11.2-zss
+    self._car_model_toggle.load()                                                           # op0.11.2-priusc
 
   def _on_experimental_mode(self, state: bool):
     if state and not ui_state.params.get_bool("ExperimentalModeConfirmed"):

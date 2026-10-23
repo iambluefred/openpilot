@@ -109,15 +109,21 @@ class CarInterface(CarInterfaceBase):
       stop_and_go = True
       ret.alphaLongitudinalAvailable = False
 
+    # op0.11.2-priusc: Prius c has no factory ACC, so there is no stock longitudinal to keep
+    if candidate == CAR.TOYOTA_PRIUS_C:
+      stop_and_go = True
+
     # openpilot longitudinal enabled by default:
     #  - TSS2 cars with camera sending ACC_CONTROL where we can block it
     #  - TSS-P cars with an sDSU
+    #  - Prius c (no factory ACC)
     # openpilot longitudinal behind alpha long toggle:
     #  - TSS2 radar ACC cars (disables radar)
 
     ret.openpilotLongitudinalControl = ((bool(ret.flags & ToyotaFlags.TSS2) and not (ret.flags & ToyotaFlags.RADAR_ACC)) or
                                         bool(ret.flags & ToyotaFlags.DISABLE_RADAR.value) or
-                                        bool(ret.flags & ToyotaFlags.SDSU.value))
+                                        bool(ret.flags & ToyotaFlags.SDSU.value) or
+                                        candidate == CAR.TOYOTA_PRIUS_C)
 
     ret.autoResumeSng = ret.openpilotLongitudinalControl
 
