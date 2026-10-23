@@ -206,7 +206,8 @@ class CarController(CarControllerBase):
         net_acceleration_request = pcm_accel_cmd + accel_due_to_pitch
 
         # GVC does not overshoot ego acceleration when starting from stop, but still has a similar delay
-        if not self.CP.flags & ToyotaFlags.SECOC.value:
+        # op0.11.2-priusc: Prius c has no GVC (VSC1S07), use aEgo like SecOC cars
+        if not self.CP.flags & ToyotaFlags.SECOC.value and self.CP.carFingerprint != CAR.TOYOTA_PRIUS_C:
           a_ego_blended = float(np.interp(CS.out.vEgo, [1.0, 2.0], [CS.gvc, CS.out.aEgo]))
         else:
           a_ego_blended = CS.out.aEgo

@@ -64,7 +64,8 @@ class CarState(CarStateBase):
     ret = structs.CarState()
     cp_acc = cp_cam if (self.CP.flags & ToyotaFlags.TSS2) and not (self.CP.flags & ToyotaFlags.RADAR_ACC) else cp
 
-    if not self.CP.flags & ToyotaFlags.SECOC.value:
+    # op0.11.2-priusc: Prius c has no VSC1S07 (0x320); reading it would time out the bus (from 0.11.1-priusc 9c8d322)
+    if not self.CP.flags & ToyotaFlags.SECOC.value and self.CP.carFingerprint != CAR.TOYOTA_PRIUS_C:
       self.gvc = cp.vl["VSC1S07"]["GVC"]
 
     ret.doorOpen = any([cp.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FL"], cp.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FR"],

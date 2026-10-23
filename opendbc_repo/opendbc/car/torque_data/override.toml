@@ -106,6 +106,10 @@ legend = ["LAT_ACCEL_FACTOR", "MAX_LAT_ACCEL_MEASURED", "FRICTION"]
 "ACURA_MDX_4G" = [1.4, 1.4, 0.17]
 "ACURA_RDX_3G_MMR" = [1.5, 1.5, 0.16]
 
+# op0.11.2-priusc: Toyota Prius c (NHP10). Seeded with TOYOTA_COROLLA's values (from 0.11.1-priusc 11dce0b).
+# Retune here once torqued has converged on real data (see LiveTorqueParameters).
+"TOYOTA_PRIUS_C" = [3.117154369115421, 1.8438132575043773, 0.12289685869250652]
+
 # Dashcam or fallback configured as ideal car
 "MOCK" = [10.0, 10, 0.0]
 
