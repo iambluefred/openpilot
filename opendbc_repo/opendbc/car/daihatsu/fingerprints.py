@@ -19,6 +19,9 @@ FINGERPRINTS = {
     1100: 8, 1152: 8, 1160: 4, 1162: 8, 1163: 8, 1164: 8, 1168: 8, 1176: 3, 1188: 8, 1200: 3, 1217: 8, 1218: 8,
     1219: 8, 1224: 8, 1245: 8, 1247: 8, 1248: 8, 1267: 8, 1271: 8, 1312: 8, 1408: 8, 1409: 8, 1410: 8, 1416: 8,
     1417: 8, 1418: 8, 1434: 8, 1435: 8,
+    # lowcostPedal board (Town Ace): 0x1A6 SCM_BUTTONS, 0x5A6 PEDAL_VOLTS, 0x5A7 PEDAL_DEBUG. FPv1 only
+    # rejects IDs the car sends that are NOT listed, so the car matches with or without the board.
+    422: 8, 1446: 8, 1447: 8,
   }],
 }
 

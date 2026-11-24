@@ -37,7 +37,7 @@ class DaihatsuCarSpecs(CarSpecs):
 
 @dataclass
 class DaihatsuPlatformConfig(PlatformConfig):
-  dbc_dict: DbcDict = field(default_factory=lambda: {Bus.pt: 'daihatsu_granmax_generated'})
+  dbc_dict: DbcDict = field(default_factory=lambda: {Bus.pt: 'toyota_townace'})  # Town Ace verified DBC (lowcostPedal repo)
 
 
 class CAR(Platforms):

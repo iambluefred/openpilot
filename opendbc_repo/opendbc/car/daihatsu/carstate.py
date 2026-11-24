@@ -5,6 +5,13 @@ from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.daihatsu.values import DBC, STEER_THRESHOLD
 from opendbc.car.interfaces import CarStateBase
 
+GearShifter = structs.CarState.GearShifter
+
+# lowcostPedal 0x1A6 SCM_BUTTONS (optional: the car works without the board)
+SCM_TIMEOUT_NS = 300_000_000   # no 0x1A6 for this long (vs. BRAKE 0x0A1, 83 Hz) = board absent
+SCM_CRUISING = (2, 3)          # CRUISE_STATE: 0 OFF, 1 READY, 2 CRUISE, 3 OVERRIDE, 4 FAULT
+GAS_PRESSED_PCT = 2.0          # APPS_1 above this = gas pressed (released 0, light ~2 %)
+
 
 class CarState(CarStateBase):
   """Gran Max car state.
@@ -18,6 +25,7 @@ class CarState(CarStateBase):
     super().__init__(CP)
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
     self.shifter_values = can_define.dv["TRANSMISSION"]["GEAR"]
+    self.last_gear = GearShifter.unknown
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -48,9 +56,36 @@ class CarState(CarStateBase):
     ret.brake = cp.vl["BRAKE"]["BRAKE_PRESSURE"]
     ret.parkingBrake = bool(cp.vl["HANDBRAKE"]["HANDBRAKE_ENGAGED"])
 
-    # gear. VAL_: 0 "P", 2 "D", 4 "N", 8 "R". Only D was seen on the capture.
+    # gear (toyota_townace.dbc, verified on the Town Ace): P from PARK (byte 0 bit 0); GEAR is the whole
+    # byte 1: 128 R, 64 N, 32 D, 16 "2", 8 L. GEAR is 0 in P and for ~0.1 s while the lever moves between
+    # positions: keep the last gear then. "2" (2nd-gear hold) is reported as low, like L.
     gear = int(cp.vl["TRANSMISSION"]["GEAR"])
-    ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(gear))
+    if cp.vl["TRANSMISSION"]["PARK"]:
+      self.last_gear = GearShifter.park
+    elif gear != 0:
+      name = self.shifter_values.get(gear)
+      self.last_gear = GearShifter.low if name == "2" else self.parse_gear_shifter(name)
+    ret.gearShifter = self.last_gear
+
+    # gas: APPS_1 0-100 % (raw 0-6400, 1/64 %); engine rpm: APPS_3 raw = rpm (checked against the tachometer)
+    apps_pct = cp.vl["GAS_PEDAL"]["APPS_1"]
+    ret.gas = apps_pct / 100.
+    ret.gasPressed = apps_pct > GAS_PRESSED_PCT
+    ret.engineRpm = cp.vl["GAS_PEDAL"]["APPS_3"]
+
+    # cruise: the lowcostPedal board runs its own cruise and reports it on 0x1A6 (optional message).
+    # Option A (Fred 2026-11-24): show the board's set speed in the MAX box, but NEVER enable openpilot:
+    # this car has no steering control yet (carcontroller sends nothing), so an engaged openpilot would
+    # look active while doing nothing. cruiseState.enabled stays False on purpose.
+    # available = board main switch on; speed = set speed only while the board is cruising.
+    scm_ts = cp.ts_nanos["SCM_BUTTONS"]["CRUISE_STATE"]
+    scm_fresh = scm_ts > 0 and (cp.ts_nanos["BRAKE"]["SPEED"] - scm_ts) < SCM_TIMEOUT_NS
+    board_cruising = scm_fresh and int(cp.vl["SCM_BUTTONS"]["CRUISE_STATE"]) in SCM_CRUISING
+    ret.cruiseState.available = scm_fresh and bool(cp.vl["SCM_BUTTONS"]["MAIN_ON"])
+    ret.cruiseState.enabled = False
+    set_ms = cp.vl["SCM_BUTTONS"]["SET_SPEED"] * CV.KPH_TO_MS if board_cruising else 0.
+    ret.cruiseState.speed = set_ms
+    ret.cruiseState.speedCluster = set_ms
 
     # blinkers, taken from the stalk. METER_CLUSTER (0x358) carries the lamp
     # state and agrees with the stalk on the capture, so it works as a check.
@@ -70,8 +105,7 @@ class CarState(CarStateBase):
     # TODO: seatbeltUnlatched. METER_CLUSTER.SEAT_BELT_WARNING is stuck at 1 and
     #       SEAT_BELT_WARNING2 at 0 for the whole capture, with the driver belted.
     #       Polarity is unknown, so wiring it now would raise a permanent alert.
-    # TODO: gas / gasPressed  -- GAS_PEDAL (0x18E) APPS_1 scaling is wrong here
-    # TODO: cruiseState       -- ACC was not engaged during the capture
+    # cruiseState.enabled: see above (option A, never enabled until steering control exists)
     # TODO: steeringRateDeg   -- no rate signal identified
     # TODO: buttonEvents      -- PCM_BUTTONS (0x208) never changed on the capture
 
@@ -88,6 +122,8 @@ class CarState(CarStateBase):
       ("TRANSMISSION", 31),
       ("METER_CLUSTER", 13),
       ("HANDBRAKE", 10),
+      ("GAS_PEDAL", 60),
+      ("SCM_BUTTONS", 0),   # lowcostPedal 50 Hz, optional: frequency 0 = no timeout check, see update()
     ]
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, 0),
