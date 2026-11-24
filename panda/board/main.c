@@ -104,6 +104,18 @@ void set_safety_mode(uint16_t mode, uint16_t param) {
       }
       can_silent = ALL_CAN_LIVE;
       break;
+    case SAFETY_DAIHATSU:
+      // Town Ace (Fred 2026-11-24): daihatsu is receive-only (no TX msgs), so never intercept. The harness
+      // relay stays in pass-through and the ECU behind the harness keeps its own connection to the car;
+      // switching the relay made the car log DTCs as soon as the car was recognised.
+      set_intercept_relay(false, false);
+      heartbeat_counter = 0U;
+      heartbeat_lost = false;
+      if (current_board->has_obd) {
+        current_board->set_can_mode(CAN_MODE_NORMAL);
+      }
+      can_silent = ALL_CAN_LIVE;
+      break;
     default:
       set_intercept_relay(true, false);
       heartbeat_counter = 0U;
