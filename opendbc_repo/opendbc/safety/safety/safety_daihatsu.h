@@ -30,6 +30,9 @@
 // CAN bus numbers
 #define DAIHATSU_MAIN 0U
 #define DAIHATSU_CAM  2U
+// Town Ace (Fred 2026-11-24): the relay is never intercepted (panda/board/main.c SAFETY_DAIHATSU), and in
+// pass-through the car's CAN reaches the panda on bus 2 only. All rx checks and the rx hook use this bus.
+#define DAIHATSU_CAR  DAIHATSU_CAM
 
 // Frame checksum, identical to Toyota:
 //   last_byte = (sum(data[:-1]) + (addr & 0xFF) + (addr >> 8) + len) & 0xFF
@@ -54,7 +57,7 @@ static void daihatsu_rx_hook(const CANPacket_t *to_push) {
   // Only checksum-valid 0x1A6 frames get here (rx check below). If the board stops sending, the rx
   // check lags and safety_tick() clears controls_allowed.
   // TODO: vehicle_moving, gas_pressed, brake_pressed, torque_driver (no TX, so generic checks never run)
-  if ((GET_BUS(to_push) == DAIHATSU_MAIN) && (GET_ADDR(to_push) == DAIHATSU_SCM_BUTTONS)) {
+  if ((GET_BUS(to_push) == DAIHATSU_CAR) && (GET_ADDR(to_push) == DAIHATSU_SCM_BUTTONS)) {
     uint8_t cruise_state = GET_BYTE(to_push, 1);
     pcm_cruise_check((cruise_state == 2U) || (cruise_state == 3U));
   }
@@ -77,27 +80,24 @@ static bool daihatsu_fwd_hook(int bus, int addr) {
 
 static safety_config daihatsu_init(uint16_t param) {
   static RxCheck daihatsu_rx_checks[] = {
-    {.msg = {{DAIHATSU_MSG_0A4, DAIHATSU_MAIN, 8, .ignore_checksum = false, .ignore_counter = true, .frequency = 100U}, { 0 }, { 0 }}},
-    {.msg = {{DAIHATSU_MSG_0A1, DAIHATSU_MAIN, 8, .ignore_checksum = false, .ignore_counter = true, .frequency =  83U}, { 0 }, { 0 }}},
-    {.msg = {{DAIHATSU_MSG_134, DAIHATSU_MAIN, 6, .ignore_checksum = false, .ignore_counter = true, .frequency =  81U}, { 0 }, { 0 }}},
-    {.msg = {{DAIHATSU_MSG_190, DAIHATSU_MAIN, 8, .ignore_checksum = false, .ignore_counter = true, .frequency =  61U}, { 0 }, { 0 }}},
-    {.msg = {{DAIHATSU_MSG_1AB, DAIHATSU_MAIN, 8, .ignore_checksum = false, .ignore_counter = true, .frequency =  50U}, { 0 }, { 0 }}},
-    {.msg = {{DAIHATSU_MSG_1C0, DAIHATSU_MAIN, 4, .ignore_checksum = false, .ignore_counter = true, .frequency =  42U}, { 0 }, { 0 }}},
+    {.msg = {{DAIHATSU_MSG_0A4, DAIHATSU_CAR, 8, .ignore_checksum = false, .ignore_counter = true, .frequency = 100U}, { 0 }, { 0 }}},
+    {.msg = {{DAIHATSU_MSG_0A1, DAIHATSU_CAR, 8, .ignore_checksum = false, .ignore_counter = true, .frequency =  83U}, { 0 }, { 0 }}},
+    {.msg = {{DAIHATSU_MSG_134, DAIHATSU_CAR, 6, .ignore_checksum = false, .ignore_counter = true, .frequency =  81U}, { 0 }, { 0 }}},
+    {.msg = {{DAIHATSU_MSG_190, DAIHATSU_CAR, 8, .ignore_checksum = false, .ignore_counter = true, .frequency =  61U}, { 0 }, { 0 }}},
+    {.msg = {{DAIHATSU_MSG_1AB, DAIHATSU_CAR, 8, .ignore_checksum = false, .ignore_counter = true, .frequency =  50U}, { 0 }, { 0 }}},
+    {.msg = {{DAIHATSU_MSG_1C0, DAIHATSU_CAR, 4, .ignore_checksum = false, .ignore_counter = true, .frequency =  42U}, { 0 }, { 0 }}},
     // lowcostPedal 0x1A6. Without the board this check lags: rx checks invalid, so openpilot shows
     // "Controls Mismatch" only as a no-entry when engaging, which cannot happen without the board anyway.
-    {.msg = {{DAIHATSU_SCM_BUTTONS, DAIHATSU_MAIN, 8, .ignore_checksum = false, .ignore_counter = true, .frequency = 50U}, { 0 }, { 0 }}},
+    {.msg = {{DAIHATSU_SCM_BUTTONS, DAIHATSU_CAR, 8, .ignore_checksum = false, .ignore_counter = true, .frequency = 50U}, { 0 }, { 0 }}},
   };
 
   UNUSED(param);
-  // Receive-only: rx checks, no tx msgs. FORWARDING MUST STAY ON (Fred 2026-11-24, Town Ace DTCs):
-  // any non-silent safety mode makes panda/board/main.c set_intercept_relay(true), which cuts the harness
-  // through-connection; the ECU on the camera side (bus 2) then only reaches the car (bus 0) through the
-  // panda's forwarding. With disable_forwarding = true it was cut off completely and the car logged DTCs
-  // whenever the comma device was connected and onroad. daihatsu_fwd_hook() blocks nothing, so every
-  // frame is forwarded both ways (bus 0 <-> bus 2), i.e. the harness behaves like a pass-through.
+  // Receive-only and silent (Fred 2026-11-24): no tx msgs and NO forwarding. The harness relay stays in
+  // pass-through for SAFETY_DAIHATSU (panda/board/main.c), so the car keeps its own wiring; forwarding would
+  // only make the panda transmit copies of bus 2 frames onto bus 0.
   return (safety_config){daihatsu_rx_checks,
                          sizeof(daihatsu_rx_checks) / sizeof(daihatsu_rx_checks[0]),
-                         NULL, 0, false};
+                         NULL, 0, true};
 }
 
 const safety_hooks daihatsu_hooks = {

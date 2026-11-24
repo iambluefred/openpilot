@@ -11,6 +11,9 @@ GearShifter = structs.CarState.GearShifter
 SCM_TIMEOUT_NS = 300_000_000   # no 0x1A6 for this long (vs. BRAKE 0x0A1, 83 Hz) = board absent
 SCM_CRUISING = (2, 3)          # CRUISE_STATE: 0 OFF, 1 READY, 2 CRUISE, 3 OVERRIDE, 4 FAULT
 GAS_PRESSED_PCT = 2.0          # APPS_1 above this = gas pressed (released 0, light ~2 %)
+# Town Ace (Fred 2026-11-24): the harness relay stays in pass-through (intercepting it made the car log DTCs);
+# then the car's CAN reaches the panda on bus 2 only (measured: bus 2 ~1440 frames/s, 0x0A1 present, bus 0 empty).
+CAR_BUS = 2
 
 
 class CarState(CarStateBase):
@@ -127,5 +130,5 @@ class CarState(CarStateBase):
       ("SCM_BUTTONS", 0),   # lowcostPedal 50 Hz, optional: frequency 0 = no timeout check, see update()
     ]
     return {
-      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, 0),
+      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, CAR_BUS),
     }
