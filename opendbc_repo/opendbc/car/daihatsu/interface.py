@@ -25,6 +25,18 @@ class CarInterface(CarInterfaceBase):
     # no LKAS message: engaged = the board's longitudinal cruise only, NO steering.
     ret.dashcamOnly = False
 
+    # Lateral tuning (Fred 2026-11-24): controlsd crashed ("Process Not Running: controlsd") as soon as
+    # openpilot engaged. Nothing set lateralTuning, so the capnp default was a PID with EMPTY breakpoint
+    # lists, and LatControlPID only calls PIDController.update() (np.interp over kpBP/kiBP) when active.
+    # Give it valid, all-zero gains: controlsd runs and the UI shows the green engaged border, the steering
+    # output stays 0 (carcontroller sends nothing anyway, and the panda allows no TX).
+    ret.lateralTuning.init('pid')
+    ret.lateralTuning.pid.kpBP = [0.]
+    ret.lateralTuning.pid.kpV = [0.]
+    ret.lateralTuning.pid.kiBP = [0.]
+    ret.lateralTuning.pid.kiV = [0.]
+    ret.lateralTuning.pid.kf = 0.
+
     ret.steerActuatorDelay = 0.1
     ret.steerLimitTimer = 0.4
     ret.centerToFront = ret.wheelbase * 0.44
