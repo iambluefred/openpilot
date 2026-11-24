@@ -23,6 +23,9 @@
 #define DAIHATSU_MSG_190  0x190U  // 16.4 ms  ( 61 Hz), 8 bytes
 #define DAIHATSU_MSG_1AB  0x1ABU  // 20.0 ms  ( 50 Hz), 8 bytes
 #define DAIHATSU_MSG_1C0  0x1C0U  // 24.0 ms  ( 42 Hz), 4 bytes
+// lowcostPedal board (Town Ace, Fred 2026-11-24, option B): its own cruise state, Toyota checksum.
+// byte 1 = CRUISE_STATE: 0 OFF, 1 READY, 2 CRUISE, 3 OVERRIDE, 4 FAULT
+#define DAIHATSU_SCM_BUTTONS  0x1A6U  // 20.0 ms  ( 50 Hz), 8 bytes
 
 // CAN bus numbers
 #define DAIHATSU_MAIN 0U
@@ -46,9 +49,15 @@ static uint32_t daihatsu_get_checksum(const CANPacket_t *to_push) {
 }
 
 static void daihatsu_rx_hook(const CANPacket_t *to_push) {
-  UNUSED(to_push);
-  // TODO: sample vehicle_moving, gas_pressed, brake_pressed, torque_driver
-  //       and call pcm_cruise_check() once those signals are identified
+  // Controls follow the lowcostPedal board's cruise (option B): allowed on the rising edge of
+  // CRUISE / OVERRIDE, cleared as soon as the board leaves them (brake, cancel, fault, ...).
+  // Only checksum-valid 0x1A6 frames get here (rx check below). If the board stops sending, the rx
+  // check lags and safety_tick() clears controls_allowed.
+  // TODO: vehicle_moving, gas_pressed, brake_pressed, torque_driver (no TX, so generic checks never run)
+  if ((GET_BUS(to_push) == DAIHATSU_MAIN) && (GET_ADDR(to_push) == DAIHATSU_SCM_BUTTONS)) {
+    uint8_t cruise_state = GET_BYTE(to_push, 1);
+    pcm_cruise_check((cruise_state == 2U) || (cruise_state == 3U));
+  }
 }
 
 // GCOV_EXCL_START
@@ -74,6 +83,9 @@ static safety_config daihatsu_init(uint16_t param) {
     {.msg = {{DAIHATSU_MSG_190, DAIHATSU_MAIN, 8, .ignore_checksum = false, .ignore_counter = true, .frequency =  61U}, { 0 }, { 0 }}},
     {.msg = {{DAIHATSU_MSG_1AB, DAIHATSU_MAIN, 8, .ignore_checksum = false, .ignore_counter = true, .frequency =  50U}, { 0 }, { 0 }}},
     {.msg = {{DAIHATSU_MSG_1C0, DAIHATSU_MAIN, 4, .ignore_checksum = false, .ignore_counter = true, .frequency =  42U}, { 0 }, { 0 }}},
+    // lowcostPedal 0x1A6. Without the board this check lags: rx checks invalid, so openpilot shows
+    // "Controls Mismatch" only as a no-entry when engaging, which cannot happen without the board anyway.
+    {.msg = {{DAIHATSU_SCM_BUTTONS, DAIHATSU_MAIN, 8, .ignore_checksum = false, .ignore_counter = true, .frequency = 50U}, { 0 }, { 0 }}},
   };
 
   UNUSED(param);

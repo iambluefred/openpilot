@@ -20,9 +20,9 @@ class CarInterface(CarInterfaceBase):
     # decoded, so pcmCruise can never enable openpilot. Turning this off lets
     # pandad actually apply SAFETY_DAIHATSU so the safety mode can be exercised.
     #
-    # WARNING: do not decode cruiseState until carcontroller can send a real
-    # LKAS message. openpilot would enter the enabled state with no actuation,
-    # which looks engaged to the driver while doing nothing.
+    # Fred 2026-11-24 (option B): cruiseState IS decoded from the lowcostPedal board's
+    # 0x1A6, so openpilot engages while the board cruises. carcontroller still sends
+    # no LKAS message: engaged = the board's longitudinal cruise only, NO steering.
     ret.dashcamOnly = False
 
     ret.steerActuatorDelay = 0.1

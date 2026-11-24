@@ -74,15 +74,16 @@ class CarState(CarStateBase):
     ret.engineRpm = cp.vl["GAS_PEDAL"]["APPS_3"]
 
     # cruise: the lowcostPedal board runs its own cruise and reports it on 0x1A6 (optional message).
-    # Option A (Fred 2026-11-24): show the board's set speed in the MAX box, but NEVER enable openpilot:
-    # this car has no steering control yet (carcontroller sends nothing), so an engaged openpilot would
-    # look active while doing nothing. cruiseState.enabled stays False on purpose.
+    # Option B (Fred 2026-11-24): openpilot engages (green border, engage sound) while the board cruises
+    # (CRUISE_STATE CRUISE or OVERRIDE), panda safety follows the same signal (safety_daihatsu.h).
+    # WARNING: this car has NO steering control yet (carcontroller sends nothing, panda rejects every TX):
+    # engaged only means "the board's cruise is on"; openpilot does not steer.
     # available = board main switch on; speed = set speed only while the board is cruising.
     scm_ts = cp.ts_nanos["SCM_BUTTONS"]["CRUISE_STATE"]
     scm_fresh = scm_ts > 0 and (cp.ts_nanos["BRAKE"]["SPEED"] - scm_ts) < SCM_TIMEOUT_NS
     board_cruising = scm_fresh and int(cp.vl["SCM_BUTTONS"]["CRUISE_STATE"]) in SCM_CRUISING
     ret.cruiseState.available = scm_fresh and bool(cp.vl["SCM_BUTTONS"]["MAIN_ON"])
-    ret.cruiseState.enabled = False
+    ret.cruiseState.enabled = board_cruising
     set_ms = cp.vl["SCM_BUTTONS"]["SET_SPEED"] * CV.KPH_TO_MS if board_cruising else 0.
     ret.cruiseState.speed = set_ms
     ret.cruiseState.speedCluster = set_ms
@@ -105,7 +106,7 @@ class CarState(CarStateBase):
     # TODO: seatbeltUnlatched. METER_CLUSTER.SEAT_BELT_WARNING is stuck at 1 and
     #       SEAT_BELT_WARNING2 at 0 for the whole capture, with the driver belted.
     #       Polarity is unknown, so wiring it now would raise a permanent alert.
-    # cruiseState.enabled: see above (option A, never enabled until steering control exists)
+    # cruiseState.enabled: see above (option B: follows the board's cruise; no steering control)
     # TODO: steeringRateDeg   -- no rate signal identified
     # TODO: buttonEvents      -- PCM_BUTTONS (0x208) never changed on the capture
 
