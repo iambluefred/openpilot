@@ -89,10 +89,15 @@ static safety_config daihatsu_init(uint16_t param) {
   };
 
   UNUSED(param);
-  // receive-only: rx checks, but no tx msgs and the relay stays closed
+  // Receive-only: rx checks, no tx msgs. FORWARDING MUST STAY ON (Fred 2026-11-24, Town Ace DTCs):
+  // any non-silent safety mode makes panda/board/main.c set_intercept_relay(true), which cuts the harness
+  // through-connection; the ECU on the camera side (bus 2) then only reaches the car (bus 0) through the
+  // panda's forwarding. With disable_forwarding = true it was cut off completely and the car logged DTCs
+  // whenever the comma device was connected and onroad. daihatsu_fwd_hook() blocks nothing, so every
+  // frame is forwarded both ways (bus 0 <-> bus 2), i.e. the harness behaves like a pass-through.
   return (safety_config){daihatsu_rx_checks,
                          sizeof(daihatsu_rx_checks) / sizeof(daihatsu_rx_checks[0]),
-                         NULL, 0, true};
+                         NULL, 0, false};
 }
 
 const safety_hooks daihatsu_hooks = {
