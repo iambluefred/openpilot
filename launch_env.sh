@@ -11,3 +11,8 @@ if [ -z "$AGNOS_VERSION" ]; then
 fi
 
 export STAGING_ROOT="/data/safe_staging"
+
+# Town Ace (Fred 2026-11-24): do not send any diagnostic CAN (VIN / ECU / firmware queries) at startup.
+# The car is recognised from the CAN fingerprint only (daihatsu has no FW_VERSIONS anyway).
+# opendbc/car/car_helpers.py fingerprint(): SKIP_FW_QUERY skips get_vin, get_present_ecus, get_fw_versions.
+export SKIP_FW_QUERY=1
